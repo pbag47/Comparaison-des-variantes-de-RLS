@@ -13,7 +13,7 @@ filter_length = 32 ;  % Default: 32
 save_mode = true ; % Boolean, default: true
 % If save_mode is true, state the .mat file in which the results will be
 % stored
-data_file = 'Alg5_final.mat' ;
+data_file = 'Alg7_final.mat' ;
 
 % Save the figures of results as .pdf files
 save_figures = false ; % Boolean, default: true
