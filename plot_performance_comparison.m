@@ -21,9 +21,10 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         %       simulation result as a cross on the boxplot. To do so, an 
         %       equivalence is made between each algorithm name and its 
         %       respective x-axis coordinate on the boxplot graph.
-        convergence = zeros(1, length(Algorithms)) ;
-        residuals = zeros(1, length(Algorithms)) ;
-        computing_time = zeros(1, length(Algorithms)) ;
+
+        % convergence = zeros(1, length(Algorithms)) ;
+        % residuals = zeros(1, length(Algorithms)) ;
+        % computing_time = zeros(1, length(Algorithms)) ;
         full_cv = [] ;
         full_res = [] ;
         full_ct = [] ;
@@ -95,6 +96,7 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
             filename = strcat('Comparison__', Noise) ;
             file = strcat(path, '\', filename) ;
             print(gcf, '-dpdf', '-bestfit', file)
+            savefig(gcf, file)
         end
         
         current_figure_number = current_figure_number + 1 ;

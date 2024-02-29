@@ -116,6 +116,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                     % Export and save figure as pdf file
                     file = strcat(path, '\', Algorithm) ;
                     print(gcf, '-dpdf', '-bestfit', file)
+                    savefig(gcf, file)
                 end
             elseif length(Variables) == 2
                 % Search the algorithm in the list of already encountered
@@ -196,6 +197,23 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 ylabel(Variable_header{2})
                 grid on
                 box off
+
+                 % Formatting
+                set(gcf, 'PaperUnits', 'centimeters', ...
+                    'PaperSize', [20, 15], ...
+                    'Units', 'centimeters', ...
+                    'Position', [5, 2, 20, 15])
+        
+                if save_figures
+                    % Export and save figure as pdf file
+                    file = strcat(path, '\', Algorithm) ;
+                    print(gcf, '-dpdf', '-bestfit', file)
+                    try
+                        savefig(gcf, file)
+                    catch
+                        disp(strcat('/!\ An error occurred while attempting to save Figure n°', num2str(current_figure_number + figure_index)))
+                    end                        
+                end
             else
                 disp('Error: Invalid number of variables, cannot perform a visual rendering of the results for more than 2 variables')
                 exception = MException('ResultsDisplay:InvalidVariablesNumber', ...
@@ -205,34 +223,6 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
             end
         end
     end
-    
-    for i = 1:length(figure_with_2_variables)
-%         f = figure(figure_with_2_variables(i)) ;
-%         a = axes(f, 'visible', 'off') ;
-%         c = colorbar(a, 'Position', [0.925 0.55 0.01 0.4]) ;
-%         c.Label.String = 'Convergence time (iterations)' ;
-%         colormap(a, 'jet')
-%         caxis(a, [0 35250])
-%         
-%         b = axes(f, 'visible', 'off') ;
-%         d = colorbar(b, 'Position', [0.925 0.075 0.01 0.4]) ;
-%         d.Label.String = 'Residuals (RMSE)';
-%         colormap(b, 'jet')
-%         caxis(b, [0 2e-15])
-        
-        % Formatting
-        set(gcf, 'PaperUnits', 'centimeters', ...
-            'PaperSize', [20, 15], ...
-            'Units', 'centimeters', ...
-            'Position', [5, 2, 20, 15])
-
-        if save_figures
-            % Export and save figure as pdf file
-            file = strcat(path, '\', num2str(figure_with_2_variables(i))) ;
-            print(gcf, '-dpdf', '-bestfit', file)
-        end
-    end
-    
     next_figure_number = current_figure_number + length(list_of_all_algorithms) ;
 end
 
