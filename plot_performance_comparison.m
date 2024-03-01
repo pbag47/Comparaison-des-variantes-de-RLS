@@ -4,8 +4,8 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
     next_figure_number = current_figure_number + number_of_added_figures ;
     
     for nti = 1:length(Noise_types)
-        Noise = Noise_types{nti} ;       
-        Noise_header = strrep(Noise, '_', ' ') ;
+        Noise = Noise_types{nti} ; 
+        Noise_name = render_name(Noise) ;
         Algorithms = fieldnames(Results.(Noise)) ;
         
         %% Formatting the simulation results into 5 variables for boxplots:
@@ -21,10 +21,6 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         %       simulation result as a cross on the boxplot. To do so, an 
         %       equivalence is made between each algorithm name and its 
         %       respective x-axis coordinate on the boxplot graph.
-
-        % convergence = zeros(1, length(Algorithms)) ;
-        % residuals = zeros(1, length(Algorithms)) ;
-        % computing_time = zeros(1, length(Algorithms)) ;
         full_cv = [] ;
         full_res = [] ;
         full_ct = [] ;
@@ -32,18 +28,14 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         full_x_label_coordinates = [] ;
         for ai = 1:length(Algorithms)
             Algorithm = Algorithms{ai} ;
-            header = strrep(Algorithm, '_', ' ') ;
+            Algorithm_name = render_name(Algorithm) ;
             
             cv = (Results.(Noise).(Algorithm).convergence)' ;
             res = (Results.(Noise).(Algorithm).residuals)' ;
             ct = (Results.(Noise).(Algorithm).computing_time)' ;
             
-            names = repmat({header}, [length(cv), 1]) ;
+            names = repmat({Algorithm_name}, [length(cv), 1]) ;
             x_label_coordinates = repmat(ai, [length(cv), 1]) ;
-            
-%             convergence(ai) = min(Results.(Noise).(Algorithm).convergence) ;
-%             residuals(ai) = min(Results.(Noise).(Algorithm).residuals) ;
-%             computing_time(ai) = min(Results.(Noise).(Algorithm).computing_time) ;
             
             full_cv = [full_cv ; cv] ;
             full_res = [full_res ; res] ;
@@ -59,7 +51,7 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         hold on
         scatter(full_x_label_coordinates, full_cv, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
         ylim([0, Inf])
-        title({Noise_header, 'Convergence time comparison'})
+        title({Noise_name, 'Convergence time comparison'})
         ylabel('Convergence time (iterations)')
         box off
         set(gca, 'YGrid', 'on')
