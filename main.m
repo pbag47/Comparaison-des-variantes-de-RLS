@@ -32,11 +32,11 @@ noise_types = {'White_noise', 'Pink_noise'} ;
 %% Algorithm settings
 sweep_sim_number = 3 ;
 for i = 1:length(noise_types)
-    Parameters.(noise_types{i}).Alg_1.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).Alg_2.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).Alg_2.beta_Lambda = linspace(0.6, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).Alg_3.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).Alg_3.beta_E = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_1.beta_R = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_2.beta_R = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_2.beta_Lambda = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_3.beta_R = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_3.beta_E = linspace(0.6, 1, sweep_sim_number) ;
 end
 
 %% Parsing existing results (save_mode)

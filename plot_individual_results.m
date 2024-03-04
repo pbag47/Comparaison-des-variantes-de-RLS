@@ -4,6 +4,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
     list_of_legend_text = {} ;
     colors = [0 0 1; 1 0 0; 0 1 0] ;
     line_style = {'-', '--', '-.', ':'} ;
+    RLS_figure_number = NaN ;
     
     Noise_types = fieldnames(Results) ;
     for nti = 1:length(Noise_types)
@@ -34,6 +35,11 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 % Select figure according to current algorithm
                 figure(current_figure_number + figure_index) ;
 
+                if strcmp(Algorithm, 'Alg_1') || strcmp(Algorithm, 'Alg_5')
+                    RLS_figure_number = current_figure_number + figure_index ;
+                    beta_R = Results.(Noise).(Algorithm).(Variable) ;
+                end
+
                 % Convergence time series
                 subplot(2,1,1)
                 hold on
@@ -42,7 +48,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                      'LineStyle', line_style{1+mod(nti-1, length(line_style))},...
                      'Color', colors(1+mod(nti-1, length(colors)), :), ...
                      'Marker', '.', ...
-                     'MarkerSize', 5) ;
+                     'MarkerSize', 7) ;
                 hold on
                 ylim([0, Inf])
                 title(['\textbf{', Algorithm_name, ' convergence time vs ', Variable_name, '}'], 'Interpreter','latex')
@@ -59,7 +65,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                      'LineStyle', line_style{1+mod(nti-1, length(line_style))},...
                      'Color', colors(1+mod(nti-1, length(colors)), :), ...
                      'Marker', '.', ...
-                     'MarkerSize', 5) ;
+                     'MarkerSize', 7) ;
                 hold on
                 ylim([0, Inf])
                 title(['\textbf{', Algorithm_name, ' residuals vs ', Variable_name, '}'], 'Interpreter','latex')
@@ -171,5 +177,35 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
         end
     end
     next_figure_number = current_figure_number + length(list_of_all_algorithms) ;
+    if ~isnan(RLS_figure_number)
+        Input_signal_power = 1 ;
+        Initial_value_of_R = 0 ;
+        filter_length = 32 ;
+        
+        theoretical_convergence_curve = - (filter_length * abs(Input_signal_power - Initial_value_of_R) ./ log(beta_R)) ;
+        theoretical_error_curve = sqrt(Input_signal_power * filter_length * (1 - beta_R) ./ (1 + beta_R) * eps(1)^2) ;
+        
+        figure(RLS_figure_number)
+        subplot(2, 1, 1)
+        plot(beta_R, theoretical_convergence_curve, ...
+            'LineStyle', '-.', 'Color', 'k', 'Marker', 'none')
+        L = legend() ;
+        L.String{1, end} = 'Theoretical curve' ;
+        legend(L.String)
+    
+        subplot(2, 1, 2)
+        plot(beta_R, theoretical_error_curve, ...
+            'LineStyle', '-.', 'Color', 'k', 'Marker', 'none')
+        L = legend() ;
+        L.String{1, end} = 'Theoretical curve' ;
+        legend(L.String)
+        
+        if save_figures
+            % Export and save figure as pdf file
+            file = strcat(path, '\', 'Alg_1') ;
+            print(gcf, '-dpdf', '-bestfit', file)
+            savefig(gcf, file)
+        end
+    end
 end
 
