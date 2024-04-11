@@ -13,7 +13,7 @@ filter_length = 32 ;  % Default: 32
 save_mode = true ; % Boolean, default: true
 % If save_mode is true, state the .mat file in which the results will be
 % stored
-data_file = 'test.mat' ;
+data_file = 'simulation_results.mat' ;
 
 % Save the figures of results as .pdf files
 save_figures = true ; % Boolean, default: true
@@ -30,13 +30,14 @@ noise_types = {'White_noise', 'Pink_noise'} ;
 % noise_types = {'White_noise'} ;
 
 %% Algorithm settings
-sweep_sim_number = 3 ;
+sweep_sim_number = 50 ;
 for i = 1:length(noise_types)
-    % Parameters.(noise_types{i}).Alg_1.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_2.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_2.beta_Lambda = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_1.beta_R = linspace(0.4, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_2.beta_R = linspace(0, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_2.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).Alg_3.beta_R = linspace(0.6, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).Alg_3.beta_E = linspace(0.6, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).Alg_4.beta_R = linspace(0.4, 1, sweep_sim_number) ;
 end
 
 %% Parsing existing results (save_mode)
@@ -64,3 +65,4 @@ path = "Images" ;
 current_figure_number = 1 ;
 current_figure_number = plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
 current_figure_number = plot_individual_results(Results, current_figure_number, save_figures, path) ;
+plot_theoretical_curves(current_figure_number, save_figures, path) ;

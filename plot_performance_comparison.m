@@ -46,45 +46,78 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
 
         %% Results comparison boxplot
         figure(current_figure_number)
+
+        % Convergence time
         subplot(3,1,1)
-        boxplot(full_cv, full_names, 'Whisker', Inf)
+        boxplot(full_cv, full_names, ...
+            'Whisker', Inf)
+        set(gca, 'TickLabelInterpreter', 'latex')
         hold on
-        scatter(full_x_label_coordinates, full_cv, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
-        title({Noise_name, 'Convergence time comparison'})
-        ylabel('Convergence time (iterations)')
-        box off
+        scatter(full_x_label_coordinates, full_cv, ...
+            'Marker', 'x', ...
+            'SizeData', 20, ...
+            'Jitter', 'on', ...
+            'JitterAmount', 0.05)
         set(gca, 'YGrid', 'on')
-
-        figure(current_figure_number)
+        title({['\textbf{', Noise_name, '}'], ...
+            '\textbf{Convergence time comparison}'}, ...
+            'Interpreter', 'latex')
+        ylim([0, Inf])
+        ylabel({'Convergence time', ...
+            '(iterations)'}, ...
+            'Interpreter', 'latex')
+        box off
+        
+        % Residual error
         subplot(3,1,2)
-        boxplot(full_res, full_names, 'Whisker', Inf)
+        boxplot(full_res.^2, full_names, ...
+            'Whisker', Inf)
+        set(gca, 'TickLabelInterpreter', 'latex')
         hold on
-        scatter(full_x_label_coordinates, full_res, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
-        title('Residuals comparison')
-        ylabel('Residuals (RMSE)')
-        box off
+        scatter(full_x_label_coordinates, full_res.^2, ...
+            'Marker', 'x', ...
+            'SizeData', 20, ...
+            'Jitter', 'on', ...
+            'JitterAmount', 0.05)
         set(gca, 'YGrid', 'on')
-
-        figure(current_figure_number)
+        title({['\textbf{', Noise_name, '}'], ...
+            '\textbf{Residual error comparison}'}, ...
+            'Interpreter', 'latex')
+        ylim([0, Inf])
+        ylabel({'Residual error', ...
+            '(MSE)'}, ...
+            'Interpreter', 'latex')
+        box off
+        
+        % Computing time
         subplot(3,1,3)
-        boxplot(full_ct, full_names, 'Whisker', Inf)
+        boxplot(full_ct, full_names, ...
+            'Whisker', Inf)
+        set(gca, 'TickLabelInterpreter', 'latex')
         hold on
-        scatter(full_x_label_coordinates, full_ct, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
-        title('Computing time comparison')
-        ylabel('Computing time (s)')
-        box off
+        scatter(full_x_label_coordinates, full_ct, ...
+            'Marker', 'x', ...
+            'SizeData', 20, ...
+            'Jitter', 'on', ...
+            'JitterAmount', 0.05)
         set(gca, 'YGrid', 'on')
-
+        title({['\textbf{', Noise_name, '}'], ...
+            '\textbf{Computing time comparison}'}, ...
+            'Interpreter', 'latex')
+        ylim([0, Inf])
+        ylabel({'Computing time', ...
+            '(s)'}, ...
+            'Interpreter', 'latex')
+        box off
+        
+        % Figure format
         set(gcf, 'PaperUnits', 'centimeters', ...
             'PaperSize', [20, 20], ...
             'Units', 'centimeters', ...
             'Position', [5, 2, 20, 20])
         
-        %% Export and save Figure as a pdf file
         if save_figures
+            % Export and save figure as pdf and fig files
             filename = strcat('Comparison__', Noise) ;
             file = strcat(path, '\', filename) ;
             print(gcf, '-dpdf', '-bestfit', file)

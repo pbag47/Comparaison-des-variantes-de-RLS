@@ -1,11 +1,8 @@
 function next_figure_number = plot_individual_results(Results, current_figure_number, save_figures, path)
-    
     list_of_all_algorithms = {} ;
     list_of_legend_text = {} ;
     colors = [0 0 1; 1 0 0; 0 1 0] ;
     line_style = {'-', '--', '-.', ':'} ;
-    RLS_figure_number = NaN ;
-    
     Noise_types = fieldnames(Results) ;
     for nti = 1:length(Noise_types)
         Noise = Noise_types{nti} ;
@@ -14,7 +11,6 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
         for ai = 1:length(Algorithms)
             Algorithm = Algorithms{ai} ;
             Algorithm_name = render_name(Algorithm) ;
-
             Variables = find_variable_name(Results, Noise, Algorithm) ;
             if length(Variables) == 1
                 Variable = Variables{1} ;
@@ -33,14 +29,9 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 end
 
                 % Select figure according to current algorithm
-                figure(current_figure_number + figure_index) ;
+                figure(current_figure_number - 1 + figure_index) ;
 
-                if strcmp(Algorithm, 'Alg_1') || strcmp(Algorithm, 'Alg_5')
-                    RLS_figure_number = current_figure_number + figure_index ;
-                    beta_R = Results.(Noise).(Algorithm).(Variable) ;
-                end
-
-                % Convergence time series
+                % Convergence time
                 subplot(2,1,1)
                 hold on
                 plot(Results.(Noise).(Algorithm).(Variable), ...
@@ -51,38 +42,50 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                      'MarkerSize', 7) ;
                 hold on
                 ylim([0, Inf])
-                title(['\textbf{', Algorithm_name, ' convergence time vs ', Variable_name, '}'], 'Interpreter','latex')
-                xlabel(Variable_name, 'Interpreter','latex')
-                ylabel('Convergence time (iterations)', 'Interpreter','latex')
-                legend(list_of_legend_text{figure_index}, 'ItemHitFcn', @legend_item_click_callback) ;
+                title({['\textbf{', Algorithm_name, '}'], ...
+                    ['\textbf{Convergence time vs ', Variable_name, '}']}, ...
+                    'Interpreter','latex')
+                xlabel(Variable_name, ...
+                    'Interpreter','latex')
+                ylabel({'Convergence time', ...
+                    '(iterations)'}, ...
+                    'Interpreter','latex')
+                l = legend(list_of_legend_text{figure_index}) ;
+                title(l, 'Input noise type')
                 grid on
                 box off
 
-                % Residuals series
+                % Residual error
                 subplot(2,1,2)
                 plot(Results.(Noise).(Algorithm).(Variable), ...
-                     Results.(Noise).(Algorithm).residuals,...
+                     Results.(Noise).(Algorithm).residuals.^2,...
                      'LineStyle', line_style{1+mod(nti-1, length(line_style))},...
                      'Color', colors(1+mod(nti-1, length(colors)), :), ...
                      'Marker', '.', ...
                      'MarkerSize', 7) ;
                 hold on
                 ylim([0, Inf])
-                title(['\textbf{', Algorithm_name, ' residuals vs ', Variable_name, '}'], 'Interpreter','latex')
-                xlabel(Variable_name, 'Interpreter','latex')
-                ylabel('Residuals (RMSE)', 'Interpreter','latex')
-                legend(list_of_legend_text{figure_index}, 'ItemHitFcn', @legend_item_click_callback) ;
+                title({['\textbf{', Algorithm_name, '}'], ...
+                    ['\textbf{Residual error vs ', Variable_name, '}']}, ...
+                    'Interpreter','latex')
+                xlabel(Variable_name, ...
+                    'Interpreter','latex')
+                ylabel({'Residual error',  ...
+                    '(MSE)'}, ...
+                    'Interpreter','latex')
+                l = legend(list_of_legend_text{figure_index}) ;
+                title(l, 'Input noise type')
                 grid on
                 box off
 
-                % Formatting
+                % Figure format
                 set(gcf, 'PaperUnits', 'centimeters', ...
                     'PaperSize', [20, 15], ...
                     'Units', 'centimeters', ...
                     'Position', [5, 2, 20, 15])
 
                 if save_figures
-                    % Export and save figure as pdf file
+                    % Export and save figure as pdf and fig files
                     file = strcat(path, '\', Algorithm) ;
                     print(gcf, '-dpdf', '-bestfit', file)
                     savefig(gcf, file)
@@ -100,13 +103,13 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 end
                 
                 % Select figure according to current algorithm
-                figure(current_figure_number + figure_index) ;
+                figure(current_figure_number - 1 + figure_index) ;
                 
                 % Convergence time series
                 x_data = Results.(Noise).(Algorithm).(Variables{1}) ;
                 y_data = Results.(Noise).(Algorithm).(Variables{2}) ;
                 z_data_conv = Results.(Noise).(Algorithm).convergence ;
-                z_data_res = Results.(Noise).(Algorithm).residuals ;
+                z_data_res = Results.(Noise).(Algorithm).residuals.^2 ;
                 
                 % Interpolation of data to form a grid of uniformly-spaced
                 % 3D points
@@ -125,40 +128,50 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 
                 subplot(2, length(Noise_types), nti)
                 hold on
-                contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'on') ;
+                contourf(x_grid, y_grid, z_grid_conv, ...
+                    'ShowText', 'on') ;
                 colormap(jet)
                 clim([0 35250])
                 colorbar
                 hold on
-                title(['\textbf{', Noise_name, ' | ', Algorithm_name, ' convergence time vs ',...
-                    Variable_names{1}, ' and ', Variable_names{2}, '}'], 'Interpreter','latex')
-                xlabel(Variable_names{1}, 'Interpreter','latex')
-                ylabel(Variable_names{2}, 'Interpreter','latex')
+                title({['\textbf{', Algorithm_name, ' | ', Noise_name, '}'], ...
+                    ['\textbf{Convergence time vs ', Variable_names{1}, ' and ', Variable_names{2}, '}']}, ...
+                    'Interpreter','latex')
+                xlabel(Variable_names{1}, ...
+                    'Interpreter','latex')
+                ylabel(Variable_names{2}, ...
+                    'Interpreter','latex', ...
+                    'Rotation', 0)
                 grid on
                 box off
                 
                 subplot(2, length(Noise_types), length(Noise_types) + nti)
                 hold on
-                contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'on') ;
+                contourf(x_grid, y_grid, z_grid_res, ...
+                    'ShowText', 'on') ;
                 colormap(jet)
-                clim([0 2e-15])
+                % clim([0 2e-15])
                 colorbar
                 hold on
-                title(['\textbf{', Noise_name, ' | ', Algorithm_name, ' residuals vs ',...
-                    Variable_names{1}, ' and ', Variable_names{2}, '}'], 'Interpreter','latex')
-                xlabel(Variable_names{1}, 'Interpreter','latex')
-                ylabel(Variable_names{2}, 'Interpreter','latex')
+                title({['\textbf{', Algorithm_name, ' | ', Noise_name, '}'], ...
+                    ['\textbf{Residual MSE vs ', Variable_names{1}, ' and ', Variable_names{2}, '}']}, ...
+                    'Interpreter','latex')
+                xlabel(Variable_names{1}, ...
+                    'Interpreter','latex')
+                ylabel(Variable_names{2}, ...
+                    'Interpreter','latex', ...
+                    'Rotation', 0)
                 grid on
                 box off
 
-                 % Formatting
+                 % Figure format
                 set(gcf, 'PaperUnits', 'centimeters', ...
                     'PaperSize', [20, 15], ...
                     'Units', 'centimeters', ...
                     'Position', [5, 2, 20, 15])
         
                 if save_figures
-                    % Export and save figure as pdf file
+                    % Export and save figure as pdf and fig files
                     file = strcat(path, '\', Algorithm) ;
                     print(gcf, '-dpdf', '-bestfit', file)
                     try
@@ -176,36 +189,5 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
             end
         end
     end
-    next_figure_number = current_figure_number + length(list_of_all_algorithms) ;
-    if ~isnan(RLS_figure_number)
-        Input_signal_power = 1 ;
-        Initial_value_of_R = 0 ;
-        filter_length = 32 ;
-        
-        theoretical_convergence_curve = - (filter_length * abs(Input_signal_power - Initial_value_of_R) ./ log(beta_R)) ;
-        theoretical_error_curve = sqrt(Input_signal_power * filter_length * (1 - beta_R) ./ (1 + beta_R) * eps(1)^2) ;
-        
-        figure(RLS_figure_number)
-        subplot(2, 1, 1)
-        plot(beta_R, theoretical_convergence_curve, ...
-            'LineStyle', '-.', 'Color', 'k', 'Marker', 'none')
-        L = legend() ;
-        L.String{1, end} = 'Theoretical curve' ;
-        legend(L.String)
-    
-        subplot(2, 1, 2)
-        plot(beta_R, theoretical_error_curve, ...
-            'LineStyle', '-.', 'Color', 'k', 'Marker', 'none')
-        L = legend() ;
-        L.String{1, end} = 'Theoretical curve' ;
-        legend(L.String)
-        
-        if save_figures
-            % Export and save figure as pdf file
-            file = strcat(path, '\', 'Alg_1') ;
-            print(gcf, '-dpdf', '-bestfit', file)
-            savefig(gcf, file)
-        end
-    end
+    next_figure_number = current_figure_number - 1 + length(list_of_all_algorithms) ;
 end
-
