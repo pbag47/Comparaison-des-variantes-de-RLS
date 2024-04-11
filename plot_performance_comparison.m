@@ -13,8 +13,6 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         %       algorithm into a single series
         %   -   "full_res" concatenates the residuals results series of every 
         %       algorithm into a single series
-        %   -   "full_ct" concatenates the computing time results series of every 
-        %       algorithm into a single series
         %   -   "full_names" concatenates the algorithm name series of every 
         %       algorithm into a single series
         %   -   "full_x_label_coordinates" is used to scatter-plot every 
@@ -23,7 +21,6 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         %       respective x-axis coordinate on the boxplot graph.
         full_cv = [] ;
         full_res = [] ;
-        full_ct = [] ;
         full_names = [] ;
         full_x_label_coordinates = [] ;
         for ai = 1:length(Algorithms)
@@ -32,21 +29,19 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
             
             cv = (Results.(Noise).(Algorithm).convergence)' ;
             res = (Results.(Noise).(Algorithm).residuals)' ;
-            ct = (Results.(Noise).(Algorithm).computing_time)' ;
             
             names = repmat({Algorithm_name}, [length(cv), 1]) ;
             x_label_coordinates = repmat(ai, [length(cv), 1]) ;
             
             full_cv = [full_cv ; cv] ;
             full_res = [full_res ; res] ;
-            full_ct = [full_ct ; ct] ;
             full_names = [full_names ; names] ;
             full_x_label_coordinates = [full_x_label_coordinates ; x_label_coordinates] ;
         end
 
         %% Results comparison boxplot
         figure(current_figure_number)
-        subplot(3,1,1)
+        subplot(2,1,1)
         boxplot(full_cv, full_names, 'Whisker', Inf)
         hold on
         scatter(full_x_label_coordinates, full_cv, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
@@ -57,24 +52,13 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         set(gca, 'YGrid', 'on')
 
         figure(current_figure_number)
-        subplot(3,1,2)
+        subplot(2,1,2)
         boxplot(full_res, full_names, 'Whisker', Inf)
         hold on
         scatter(full_x_label_coordinates, full_res, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
+        ylim([0, 5e-15])
         title('Residuals comparison')
         ylabel('Residuals (RMSE)')
-        box off
-        set(gca, 'YGrid', 'on')
-
-        figure(current_figure_number)
-        subplot(3,1,3)
-        boxplot(full_ct, full_names, 'Whisker', Inf)
-        hold on
-        scatter(full_x_label_coordinates, full_ct, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
-        title('Computing time comparison')
-        ylabel('Computing time (s)')
         box off
         set(gca, 'YGrid', 'on')
 

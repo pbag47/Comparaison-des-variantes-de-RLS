@@ -7,7 +7,8 @@ function [rendered_name] = render_name(name)
         '_noise', ' noise';
         'beta_R', '$\beta_\mathbf{R}$';
         'beta_Lambda', '$\beta_\mathbf{\Lambda}$';
-        'beta_E', '$\beta_E$'} ;
+        'beta_E', '$\beta_E$';
+        'theta', '$\theta$'} ;
 
     [number_of_rules, ~] = size(refactor_rules) ;
     rendered_name = name ;

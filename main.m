@@ -13,7 +13,7 @@ filter_length = 32 ;  % Default: 32
 save_mode = true ; % Boolean, default: true
 % If save_mode is true, state the .mat file in which the results will be
 % stored
-data_file = 'test.mat' ;
+data_file = 'simulation_results.mat' ;
 
 % Save the figures of results as .pdf files
 save_figures = true ; % Boolean, default: true
@@ -26,17 +26,25 @@ plot_all_error_curves = false ; % Boolean, default: false
 %% Noise type selection
 % noise_types = {'White_noise', 'Pink_noise', 'Brownian_noise',...
 %     'Tonal_input', 'UAV_noise'} ;
-noise_types = {'White_noise', 'Pink_noise'} ;
+noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ;
 % noise_types = {'White_noise'} ;
 
 %% Algorithm settings
-sweep_sim_number = 3 ;
+sweep_sim_number = 9 ;
 for i = 1:length(noise_types)
-    % Parameters.(noise_types{i}).Alg_1.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_2.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_2.beta_Lambda = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_3.beta_R = linspace(0.6, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).Alg_3.beta_E = linspace(0.6, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).RLS.beta_R = linspace(0, 1, sweep_sim_number) ;
+
+    Parameters.(noise_types{i}).ARLS.beta_R = linspace(0, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+
+    Parameters.(noise_types{i}).DFTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+
+    Parameters.(noise_types{i}).DCTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+
+    Parameters.(noise_types{i}).HTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
 end
 
 %% Parsing existing results (save_mode)
