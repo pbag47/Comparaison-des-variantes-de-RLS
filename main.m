@@ -1,6 +1,7 @@
 close all
 clear variables
 clear global
+clc
 
 Parameters = struct() ;
 
@@ -13,7 +14,7 @@ filter_length = 32 ;  % Default: 32
 save_mode = true ; % Boolean, default: true
 % If save_mode is true, state the .mat file in which the results will be
 % stored
-data_file = 'simulation_results.mat' ;
+data_file = 'white_noise_results.mat' ;
 
 % Save the figures of results as .pdf files
 save_figures = true ; % Boolean, default: true
@@ -26,25 +27,25 @@ plot_all_error_curves = false ; % Boolean, default: false
 %% Noise type selection
 % noise_types = {'White_noise', 'Pink_noise', 'Brownian_noise',...
 %     'Tonal_input', 'UAV_noise'} ;
-noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ;
-% noise_types = {'White_noise'} ;
+% noise_types = {'White_noise', 'Pink_noise', 'Tonal_input'} ;
+noise_types = {'White_noise'} ;
 
 %% Algorithm settings
-sweep_sim_number = 9 ;
+sweep_sim_number = 17 ;
 for i = 1:length(noise_types)
-    Parameters.(noise_types{i}).RLS.beta_R = linspace(0, 1, sweep_sim_number) ;
+    Parameters.(noise_types{i}).RLS.beta_R = linspace(0.5, 1, sweep_sim_number) ;
 
     Parameters.(noise_types{i}).ARLS.beta_R = linspace(0, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+    Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2, sweep_sim_number) ;
 
     Parameters.(noise_types{i}).DFTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+    Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2, sweep_sim_number) ;
 
     Parameters.(noise_types{i}).DCTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+    Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2, sweep_sim_number) ;
 
     Parameters.(noise_types{i}).HTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
-    Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2/filter_length, sweep_sim_number) ;
+    Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2, sweep_sim_number) ;
 end
 
 %% Parsing existing results (save_mode)
@@ -63,7 +64,8 @@ Sh = Sh/(3*sum(Sh)) ;  % Arbitrary scaling
 %% Algorithm testing procedure
 if tests_added
     Results = Algorithm_test(Sh, Parameters, plot_all_error_curves) ;
-    Save_results(data_file, Results)
+    filtered_results = remove_NaN_results(Results) ;
+    Save_results(data_file, filtered_results)
 end
 
 %% Results display

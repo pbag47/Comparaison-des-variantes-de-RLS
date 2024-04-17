@@ -2,7 +2,7 @@ function [Error, t] = RLS_algorithm(Input, Expected_result, ANC_start_sample, fi
     %% Initialization
     t = NaN ;
     Error = zeros(length(Input), 1) ;
-    R = eye(filter_length) ;
+    R = 10*eye(filter_length) ;
     X = zeros(filter_length, 1) ;
     H = zeros(filter_length, 1) ;
     

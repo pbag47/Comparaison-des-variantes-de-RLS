@@ -5,6 +5,7 @@ function [rendered_name] = render_name(name)
     
     refactor_rules = {'Alg_', 'Algorithm ' ;
         '_noise', ' noise';
+        '_input', ' input' ;
         'beta_R', '$\beta_\mathbf{R}$';
         'beta_Lambda', '$\beta_\mathbf{\Lambda}$';
         'beta_E', '$\beta_E$';

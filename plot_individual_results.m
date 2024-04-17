@@ -3,9 +3,9 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
     list_of_all_algorithms = {} ;
     list_of_legend_text = {} ;
     colors = [0 0 1; 1 0 0; 0 1 0] ;
-    line_style = {'-', '--', '-.', ':'} ;
+    line_styles = {'-', '--', '-.', ':'} ;
     RLS_figure_number = NaN ;
-    
+
     Noise_types = fieldnames(Results) ;
     for nti = 1:length(Noise_types)
         Noise = Noise_types{nti} ;
@@ -35,7 +35,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 % Select figure according to current algorithm
                 figure(current_figure_number + figure_index) ;
 
-                if strcmp(Algorithm, 'Alg_1') || strcmp(Algorithm, 'Alg_5')
+                if strcmp(Algorithm, 'RLS')
                     RLS_figure_number = current_figure_number + figure_index ;
                     beta_R = Results.(Noise).(Algorithm).(Variable) ;
                 end
@@ -45,7 +45,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 hold on
                 plot(Results.(Noise).(Algorithm).(Variable), ...
                      Results.(Noise).(Algorithm).convergence,...
-                     'LineStyle', line_style{1+mod(nti-1, length(line_style))},...
+                     'LineStyle', line_styles{1+mod(nti-1, length(line_styles))},...
                      'Color', colors(1+mod(nti-1, length(colors)), :), ...
                      'Marker', '.', ...
                      'MarkerSize', 7) ;
@@ -54,7 +54,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 title(['\textbf{', Algorithm_name, ' convergence time vs ', Variable_name, '}'], 'Interpreter','latex')
                 xlabel(Variable_name, 'Interpreter','latex')
                 ylabel('Convergence time (iterations)', 'Interpreter','latex')
-                legend(list_of_legend_text{figure_index}, 'ItemHitFcn', @legend_item_click_callback) ;
+                legend(list_of_legend_text{figure_index}) ;
                 grid on
                 box off
 
@@ -62,7 +62,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 subplot(2,1,2)
                 plot(Results.(Noise).(Algorithm).(Variable), ...
                      Results.(Noise).(Algorithm).residuals,...
-                     'LineStyle', line_style{1+mod(nti-1, length(line_style))},...
+                     'LineStyle', line_styles{1+mod(nti-1, length(line_styles))},...
                      'Color', colors(1+mod(nti-1, length(colors)), :), ...
                      'Marker', '.', ...
                      'MarkerSize', 7) ;
@@ -71,7 +71,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 title(['\textbf{', Algorithm_name, ' residuals vs ', Variable_name, '}'], 'Interpreter','latex')
                 xlabel(Variable_name, 'Interpreter','latex')
                 ylabel('Residuals (RMSE)', 'Interpreter','latex')
-                legend(list_of_legend_text{figure_index}, 'ItemHitFcn', @legend_item_click_callback) ;
+                legend(list_of_legend_text{figure_index}) ;
                 grid on
                 box off
 
@@ -108,21 +108,25 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 z_data_conv = Results.(Noise).(Algorithm).convergence ;
                 z_data_res = Results.(Noise).(Algorithm).residuals ;
                 
-                % Interpolation of data to form a grid of uniformly-spaced
-                % 3D points
-                [x_grid, y_grid] = meshgrid(linspace(min(x_data), max(x_data), 2*length(x_data)),...
-                    linspace(min(y_data), max(y_data), 2*length(y_data))) ;
-                z_grid_conv = griddata(x_data, y_data, z_data_conv, x_grid, y_grid) ;
-                z_grid_res = griddata(x_data, y_data, z_data_res, x_grid, y_grid) ;
+                % Transform 1D-result vectors into 2D-grids
+                x_vector = unique(x_data) ;
+                y_vector = unique(y_data) ;
+                [x_grid, y_grid] = meshgrid(x_vector,...
+                    y_vector) ;
+                z_grid_conv = NaN * ones(length(y_vector), length(x_vector)) ;
+                z_grid_res = NaN * ones(length(y_vector), length(x_vector)) ;
+                for i = 1:length(z_data_conv)
+                    if z_data_res(i) < 1.5e-15 || strcmp(Noise, 'Tonal_input')
+                        grid_row_indexes = find(x_grid == x_data(i)) ;
+                        grid_column_indexes = find(y_grid == y_data(i)) ;
+                        [~, x_index] = intersect(grid_row_indexes, grid_column_indexes) ;
+                        [~, y_index] = intersect(grid_column_indexes, grid_row_indexes) ;
+                        z_grid_conv(x_index, y_index) = z_data_conv(i) ;
+                        z_grid_res(x_index, y_index) = z_data_res(i) ;
+                    end
+                end
                 
-                % Set the convergence outside the measured area to NaN
-                k = boundary(x_data', y_data', 1) ;
-                pgon = polyshape(x_data(k), y_data(k), 'Simplify', false) ;
-                idx = isinterior(pgon, x_grid(:), y_grid(:)) ;
-                idx = reshape(idx, size(x_grid)) ;
-                z_grid_conv(~idx) = nan ; 
-                z_grid_res(~idx) = nan ;
-                
+                % Display
                 subplot(2, length(Noise_types), nti)
                 hold on
                 contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'on') ;
@@ -141,7 +145,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 hold on
                 contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'on') ;
                 colormap(jet)
-                clim([0 2e-15])
+                % clim([0 2e-15])
                 colorbar
                 hold on
                 title(['\textbf{', Noise_name, ' | ', Algorithm_name, ' residuals vs ',...
@@ -176,6 +180,8 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
             end
         end
     end
+
+    % Theoretical trend-lines for RLS algorithm performance
     next_figure_number = current_figure_number + length(list_of_all_algorithms) ;
     if ~isnan(RLS_figure_number)
         Input_signal_power = 1 ;
