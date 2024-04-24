@@ -109,6 +109,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 z_data_res = Results.(Noise).(Algorithm).residuals ;
                 
                 % Transform 1D-result vectors into 2D-grids
+                residuals_sup_threshold = 1.5e-15 ; % Inf ;
                 x_vector = unique(x_data) ;
                 y_vector = unique(y_data) ;
                 [x_grid, y_grid] = meshgrid(x_vector,...
@@ -116,7 +117,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 z_grid_conv = NaN * ones(length(y_vector), length(x_vector)) ;
                 z_grid_res = NaN * ones(length(y_vector), length(x_vector)) ;
                 for i = 1:length(z_data_conv)
-                    if z_data_res(i) < 1.5e-15 || strcmp(Noise, 'Tonal_input')
+                    if z_data_res(i) < residuals_sup_threshold || strcmp(Noise, 'Tonal_input')
                         grid_row_indexes = find(x_grid == x_data(i)) ;
                         grid_column_indexes = find(y_grid == y_data(i)) ;
                         [~, x_index] = intersect(grid_row_indexes, grid_column_indexes) ;
@@ -129,9 +130,12 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 % Display
                 subplot(2, length(Noise_types), nti)
                 hold on
-                contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'on') ;
+                contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'off') ;
                 colormap(jet)
-                clim([0 35250])
+                xlim([0, 1])
+                ylim([0, 2])
+                clim([0, 20000])
+                % clim([0 35250])
                 colorbar
                 hold on
                 title(['\textbf{', Noise_name, ' | ', Algorithm_name, ' convergence time vs ',...
@@ -143,8 +147,10 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 
                 subplot(2, length(Noise_types), length(Noise_types) + nti)
                 hold on
-                contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'on') ;
+                contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'off') ;
                 colormap(jet)
+                xlim([0, 1])
+                ylim([0, 2])
                 % clim([0 2e-15])
                 colorbar
                 hold on

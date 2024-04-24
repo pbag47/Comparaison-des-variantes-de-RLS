@@ -25,5 +25,5 @@ function [Error, t] = DCTLMS_algorithm(Input, Expected_result, ANC_start_sample,
         end
     end
     t = toc() ;
-    disp(['    Algorithm running time : ', num2str(t), ' s'])
+    disp(['    Algorithm run-time : ', num2str(t), ' s'])
 end
