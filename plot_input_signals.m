@@ -15,15 +15,15 @@ for nti = 1:length(Noise_types)
     xlabel('Iteration')
     title(Noise, 'Interpreter', 'None')
     
-    spectre = fftshift(fft(Noise_samples.(Noise))) ;
+    spectrum = fftshift(fft(Noise_samples.(Noise))) ;
     
     subplot(3, 1, 2)
-    semilogy(abs(spectre(ceil(length(spectre)/2:end))))
+    semilogy(abs(spectrum(ceil(length(spectrum)/2:end))))
     xlabel('Pulse / Sample rate (rad)')
     ylabel('Amplitude')
     
     subplot(3, 1, 3)
-    plot(angle(spectre(ceil(length(spectre)/2:end))))
+    plot(angle(spectrum(ceil(length(spectrum)/2:end))))
     xlabel('Pulse / Sample rate (rad)')
     ylabel('Phase')
     ylim([-pi, pi])
