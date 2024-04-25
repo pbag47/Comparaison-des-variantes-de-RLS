@@ -5,24 +5,29 @@ clc
 
 Parameters = struct() ;
 
-%% Simulation mode selection
+%% Simulation mode
+% Number of tap in the FIR filter
+% Requirement for the DWTLMS: filter_length must be an integer power of 2
 filter_length = 32 ;  % Default: 32
 
-% .mat file in which the results will be stored
+% .mat file in which the results are stored
 data_file = '+Results/white_noise.mat' ;
 
-% Save the figures of results as .pdf files
+% Save the figures of results as .fig and .pdf files
 save_figures = true ; % Boolean, default: true
 
-% Chosse to plot the curve of error vs sample for every simulation or to
+% Choose to plot the curve of error vs sample for every simulation or to
 % hide it
 plot_all_error_curves = false ; % Boolean, default: false
 
 %% Noise type selection
-% noise_types = {'White_noise', 'Pink_noise', 'Brownian_noise',...
-%     'Tonal_input', 'UAV_noise'} ;
-% noise_types = {'White_noise', 'Pink_noise', 'Tonal_input'} ;
-noise_types = {'White_noise', 'UAV_noise'} ;
+% Available noise types:
+%   - 'White_noise'
+%   - 'Pink_noise'
+%   - 'Brownian_noise'
+%   - 'Tonal_input'
+%   - 'UAV_noise'
+noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str elements
 
 %% Algorithm settings
 sweep_sim_number = 5 ;
@@ -32,16 +37,16 @@ for i = 1:length(noise_types)
     % Parameters.(noise_types{i}).ARLS.beta_R = linspace(0.9375, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2, sweep_sim_number) ;
     % 
-    % Parameters.(noise_types{i}).DFTLMS.beta_Lambda = linspace(0.9375, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).DFTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2, 17) ;
     % 
-    % Parameters.(noise_types{i}).DCTLMS.beta_Lambda = linspace(0.9375, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).DCTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2, 17) ;
     % 
-    % Parameters.(noise_types{i}).HTLMS.beta_Lambda = linspace(0.9375, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).HTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2, 17) ;  
     % 
-    % Parameters.(noise_types{i}).DWTLMS.beta_Lambda = linspace(0.9375, 1, sweep_sim_number) ;
+    % Parameters.(noise_types{i}).DWTLMS.beta_Lambda = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).DWTLMS.theta = linspace(0, 2, 17) ;
 end
 
