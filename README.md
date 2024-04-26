@@ -13,6 +13,9 @@ ___
 ___
 ## Operating mode
 
+The main executable file is `main.m`. 
+This file contains the configurable settings and calls several functions by following the procedure in the table below. 
+
 | File | Description |
 | --- | --- |
 | `main.m` | First, the program makes a list of every simulation request (each noise type, each algorithm, each variable), according to the parameters set by the user. |
@@ -34,6 +37,11 @@ ___
 | `noise_types` | cell: {'White_noise'} | Select which input noise to use as a reference signal for the algorithms | Choose one or more elements from the following list: <br> - 'White_noise' <br> - 'Pink_noise' <br> - 'Brownian_noise' <br> - 'Tonal_input' <br> - 'UAV_noise' |
 
 ### Requesting the test of a specific algorithm
+
+In `main.m`, the variable that contains requested simulation settings is called `Parameters`.
+This variable is a structure organized as follows:
+
+
 
 
 ___
