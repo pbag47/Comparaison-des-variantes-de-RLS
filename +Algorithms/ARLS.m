@@ -1,6 +1,6 @@
 function [Error, t] = ARLS(Input, Expected_result, ANC_start_sample, filter_length, variables)
     %% Initialization
-    beta_R = variables(1) ;
+    beta = variables(1) ;
     theta = variables(2) ;
     t = NaN ;
     Error = zeros(length(Input), 1) ;
@@ -12,9 +12,9 @@ function [Error, t] = ARLS(Input, Expected_result, ANC_start_sample, filter_leng
     tic()
     for i = ANC_start_sample:length(Input)
         X = [Input(i) ; X(1:filter_length-1)] ;
-        R = diag(diag((1-beta_R) * X * transpose(X) + beta_R * R)) ;
+        R = (1-beta) * X * transpose(X) + beta * R ;
         Error(i) = Expected_result(i) - transpose(X)*H ;
-        H = H + theta/filter_length * Error(i) * R^-1 * X ;
+        H = H + theta * (1-beta) * Error(i) * R^-1 * X ;
 
         if isnan(Error(i)) || isinf(Error(i))
             disp('    Algorithm execution aborted: NaN or Inf value found in error signal')

@@ -6,7 +6,6 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
     
     % Input signal file load
     load('Noise_samples.mat', 'Noise_samples')
-    % addpath +Algorithms\
     import Algorithms.*
     
     Noise_types = fieldnames(Parameters) ;
@@ -107,7 +106,7 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                 
                 % The finite number of samples of the Error_RMS brings a limit
                 % to the maximum convergence time that can be measured
-                % (default : 35249)
+                % (default: 35249)
                 maximum_allowed_convergence_time = length(Error_RMS) - ...
                     round(number_of_active_ANC_samples/5) - ANC_start_sample ;
                 
@@ -115,12 +114,12 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                 [Has_converged, convergence] = Functions.detect_convergence(Error_RMS, ... 
                     residuals, divergence_threshold, maximum_allowed_convergence_time) ;
                 
-                if ~Has_converged
+                if Has_converged
+                    convergence = convergence - ANC_start_sample ;
+                else
                     convergence = NaN ;
                     residuals = NaN ;
                     computing_time = NaN ;
-                else
-                    convergence = convergence - ANC_start_sample ;
                 end
                 
                 %% Results processing
@@ -133,8 +132,8 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                 Results.(Noise).(Algorithm).computing_time(si) = computing_time ;
                 
                 % Console display
-                disp(['    convergence : ', num2str(convergence), ' iterations'])
-                disp(['    residuals : ', num2str(residuals), ' (RMSE)'])
+                disp(['    Convergence: ', num2str(convergence), ' iterations'])
+                disp(['    Residuals (RMSE): ', num2str(residuals)])
                 
                 % RMSE curve display
                 if plot_all_error_curves

@@ -1,6 +1,6 @@
 function [Error, t] = DCTLMS(Input, Expected_result, ANC_start_sample, filter_length, variables)
     %% Initialization
-    beta_Lambda = variables(1) ;
+    beta = variables(1) ;
     theta_DCT = variables(2)  ;
     t = NaN ;
     Error = zeros(length(Input), 1) ;
@@ -16,7 +16,7 @@ function [Error, t] = DCTLMS(Input, Expected_result, ANC_start_sample, filter_le
     for i = ANC_start_sample:length(Input)
         X = [Input(i) ; X(1:filter_length-1)] ;
         X_DCT = DCT_matrix * X ;
-        Lambda_DCT = diag(diag( (1-beta_Lambda) * X_DCT * transpose(X_DCT) + beta_Lambda * Lambda_DCT )) ;
+        Lambda_DCT = diag(diag( (1-beta) * X_DCT * transpose(X_DCT) + beta * Lambda_DCT )) ;
         Error(i) = Expected_result(i) - transpose(H_DCT) * X_DCT ;
         H_DCT = H_DCT + theta_DCT/filter_length * Error(i) * Lambda_DCT^(-1) * X_DCT ;
         if isnan(Error(i)) || isinf(Error(i))

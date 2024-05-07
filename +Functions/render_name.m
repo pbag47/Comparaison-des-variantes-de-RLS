@@ -9,7 +9,9 @@ function [rendered_name] = render_name(name)
         'beta_R', '$\beta_\mathbf{R}$';
         'beta_Lambda', '$\beta_\mathbf{\Lambda}$';
         'beta_E', '$\beta_E$';
-        'theta', '$\theta$'} ;
+        'beta', '$\beta$';
+        'theta', '$\theta$';
+        'mu', '$\mu$'} ;
 
     [number_of_rules, ~] = size(refactor_rules) ;
     rendered_name = name ;
