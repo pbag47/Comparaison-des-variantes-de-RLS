@@ -11,7 +11,7 @@ Parameters = struct() ;
 filter_length = 32 ;  % Default: 32
 
 % .mat file in which the results are stored
-data_file = '+Results/white_noise_merged.mat' ;
+data_file = '+Results/all_results.mat' ;
 
 % Save the figures of results as .fig and .pdf files
 save_figures = true ; % Boolean, default: true

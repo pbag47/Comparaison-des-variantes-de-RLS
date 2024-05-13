@@ -151,7 +151,7 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
-                % clim([0 2e-15])
+                clim([0 residuals_sup_threshold])
                 colorbar
                 hold on
                 title(['\textbf{', Noise_name, ' | ', Algorithm_name, ' residuals vs ',...
