@@ -21,6 +21,9 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         %       respective x-axis coordinate on the boxplot graph.
         full_cv = [] ;
         full_res = [] ;
+        full_mean_cv = [] ;
+        full_mean_res = [] ;
+        mean_series_x_coords = [] ;
         full_names = [] ;
         full_x_label_coordinates = [] ;
         for ai = 1:length(Algorithms)
@@ -29,12 +32,18 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
             
             cv = (Results.(Noise).(Algorithm).convergence)' ;
             res = (Results.(Noise).(Algorithm).residuals)' ;
+
+            mean_cv = [NaN ; mean(cv) ; mean(cv) ; NaN] ;
+            mean_res = [NaN ; mean(res) ; mean(res) ; NaN] ;
             
             names = repmat({Algorithm_name}, [length(cv), 1]) ;
             x_label_coordinates = repmat(ai, [length(cv), 1]) ;
             
             full_cv = [full_cv ; cv] ;
             full_res = [full_res ; res] ;
+            full_mean_cv = [full_mean_cv ; mean_cv] ;
+            full_mean_res = [full_mean_res ; mean_res] ;
+            mean_series_x_coords = [mean_series_x_coords ; ai-0.9 ; ai - 0.50 ; ai + 0.50 ; ai + 0.9] ;
             full_names = [full_names ; names] ;
             full_x_label_coordinates = [full_x_label_coordinates ; x_label_coordinates] ;
         end
@@ -45,7 +54,9 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         boxplot(full_cv, full_names, 'Whisker', Inf)
         hold on
         scatter(full_x_label_coordinates, full_cv, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, Inf])
+        % plot(mean_series_x_coords, full_mean_cv, '--k')
+        % ylim([0, Inf])
+        ylim([0 35250])
         title({Noise_name, 'Convergence time comparison'})
         ylabel('Convergence time (iterations)')
         box off
@@ -56,7 +67,9 @@ function next_figure_number = plot_performance_comparison(Results, current_figur
         boxplot(full_res, full_names, 'Whisker', Inf)
         hold on
         scatter(full_x_label_coordinates, full_res, 20, 'x', 'jitter', 'on', 'jitterAmount', 0.05)
-        ylim([0, 5e-15])
+        % plot(mean_series_x_coords, full_mean_res, '--k')
+        % ylim([0, 5e-15])
+        ylim([0, 1.5e-15])
         title('Residuals comparison')
         ylabel('Residuals (RMSE)')
         box off

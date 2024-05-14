@@ -75,5 +75,5 @@ end
 load(data_file, 'Results')
 path = "+Images" ;
 current_figure_number = 1 ;
-current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
+% current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
 current_figure_number = Functions.plot_individual_results(Results, current_figure_number, save_figures, path) ;
