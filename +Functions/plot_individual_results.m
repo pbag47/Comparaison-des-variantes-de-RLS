@@ -10,23 +10,24 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
     colors = [0 0 1; 1 0 0; 0 1 0] ;
     line_styles = {'-', '--', '-.', ':'} ;
 
-    x_margin = 0.125 ;
-    y_margin = 0.1 ;
-    rectangle_x_margin = 0.35 * x_margin ;
+    x_margin = 0.1 ; % 0.125
+    colorbar_y = 0.05 ;
+    rectangle_x_margin = 0.15 * x_margin ;
     rectangle_y_margin = 0.0 ;
-    block_x_margin = 0.5 * x_margin ;
-    colorbar_area_height = 0.1 ;
+    colorbar_height = 0.025 ;
+    column_title_height = 0.04 ;
+    global_title_height = 0.05 ;
     block_y_gap = 0.005 ;
 
-    graph_area_height = 1 - colorbar_area_height ;
+    graph_area_height = 1 - colorbar_y - colorbar_height - column_title_height - global_title_height - block_y_gap ;
     block_height = graph_area_height / number_of_rows ;
 
-    graph_height = 0.7 * block_height ;
-    graph_width = 0.5 - 2*x_margin ;
-    title_height = 0.1 * block_height ;
-    title_graph_y_gap = 0.01 ;
+    graph_height = 0.675 * block_height ;
+    graph_width = 0.5 - 1.75*x_margin ;
+    block_title_height = 0.1 * block_height ;
+    title_graph_y_gap = 0.0075 ;
 
-    block_y_margin = block_height - title_height - graph_height - title_graph_y_gap - 2*block_y_gap ;
+    block_y_margin = block_height - block_title_height - graph_height - title_graph_y_gap - 2*block_y_gap ;
     
     for nti = 1:length(Noise_types)
         Noise = Noise_types{nti} ;
@@ -148,37 +149,63 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                         z_grid_res(x_index, y_index) = z_data_res(i) ;
                     end
                 end
-
-                block_x = block_x_margin ;
-                block_y = colorbar_area_height + (number_of_rows-nti) * block_height ;
-                block_width = 1 - 2*block_x_margin ;
-
-                annotation('rectangle', [block_x, block_y + block_y_gap, block_width, block_height - 2*block_y_gap], ...
-                    'LineStyle', '--')
-
+                
+                %% Annotations, titles and rectangles
                 if nti == 1
                     rectangle_1_x = rectangle_x_margin ;
-                    rectangle_y = colorbar_area_height + rectangle_y_margin ;
+                    rectangle_y = colorbar_y + colorbar_height ;
                     rectangle_width = 0.5 - 2*rectangle_1_x ;
-                    rectangle_height = 1 - rectangle_y - rectangle_y_margin ;
+                    rectangle_height = 1 - rectangle_y - rectangle_y_margin - global_title_height ;
                     rectangle_2_x = 0.5 + rectangle_1_x ;
                     hold on
+                    annotation('textbox', [rectangle_1_x, 1-global_title_height + block_y_gap, 1 - 2*rectangle_1_x, global_title_height - block_y_gap - rectangle_y_margin], ...
+                        'String', ['\textbf{', Algorithm_name, ' algorithm}'], ...
+                        'Interpreter','latex', ...
+                        'FontSize', 16,  ...
+                        'HorizontalAlignment','center', ...
+                        'VerticalAlignment','middle', ...
+                        'BackgroundColor','w')
+                    
+                    annotation('textbox', [rectangle_1_x, 1-rectangle_y_margin-column_title_height-rectangle_y_margin - global_title_height, rectangle_width, column_title_height-rectangle_y_margin], ...
+                        'String', '\textbf{Convergence time (iterations)}', ...
+                        'Interpreter','latex', ...
+                        'FontSize', 14, ...
+                        'HorizontalAlignment','center', ...
+                        'VerticalAlignment','middle', ...
+                        'BackgroundColor','w')
+
+                    annotation('textbox', [rectangle_2_x, 1-rectangle_y_margin-column_title_height-rectangle_y_margin - global_title_height, rectangle_width, column_title_height-rectangle_y_margin], ...
+                        'String', '\textbf{Residual error (RMSE)}', ...
+                        'Interpreter','latex', ...
+                        'FontSize', 14, ...
+                        'HorizontalAlignment','center', ...
+                        'VerticalAlignment','middle', ...
+                        'BackgroundColor','w')
+                    
                     annotation('rectangle', [rectangle_1_x, rectangle_y, rectangle_width, rectangle_height])
                     annotation('rectangle', [rectangle_2_x, rectangle_y, rectangle_width, rectangle_height])
                 end
 
+                block_x = 2 * rectangle_x_margin ; % block_x_margin ;
+                block_y = colorbar_y + colorbar_height + (number_of_rows-nti) * block_height ;
+                block_width = 1 - 2*block_x ;
+
+                annotation('rectangle', [block_x, block_y + block_y_gap, block_width, block_height - 2*block_y_gap], ...
+                    'LineStyle', '--')
+
                 text_x = block_x ;
-                text_y = block_y + block_height - title_height - block_y_gap ;
+                text_y = block_y + block_height - block_title_height - block_y_gap ;
                 text_width = block_width ;
-                text_height = title_height ;
+                text_height = block_title_height ;
                 annotation('textbox', [text_x, text_y, text_width, text_height],...
-                    'String', ['\textbf{', Algorithm_name, ' | ', Noise_name, '}'],...*
+                    'String', ['\textbf{', Noise_name, ' input signal}'],...*
                     'Interpreter','latex', ...
+                    'FontSize', 12, ...
                     'HorizontalAlignment','center', ...
                     'VerticalAlignment','middle', ...
                     'BackgroundColor','w')
                 
-                % Display
+                %% Left-hand side: Convergence time plot
                 s1 = subplot(length(Noise_types), 2, 2*nti-1) ;
                 hold on
                 contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'off')
@@ -186,24 +213,25 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 xlim([0, 1])
                 ylim([0, 2])
                 clim([0, 20000])
+                xlabel(Variable_names{1}, 'Interpreter','latex', 'FontSize', 12) ;
+                ylabel(Variable_names{2}, 'Interpreter','latex', 'FontSize', 12, 'Rotation', 0) ;
                 % clim([0 35250])
-
-                x_s1 = x_margin ;
-                y_s1 = colorbar_area_height + (number_of_rows-nti) * block_height + block_y_gap + block_y_margin ;
-                set(s1, 'PositionConstraint', 'innerposition',...
-                    'InnerPosition', [x_s1, y_s1, graph_width, graph_height])
-                xlabel(Variable_names{1}, 'Interpreter','latex')
-                ylabel(Variable_names{2}, 'Interpreter','latex')
                 grid on
                 box off
+
+                x_s1 = x_margin ;
+                y_s1 = colorbar_y + colorbar_height + (number_of_rows-nti) * block_height + block_y_gap + block_y_margin ;
+                set(s1, 'PositionConstraint', 'innerposition',...
+                    'InnerPosition', [x_s1, y_s1, graph_width, graph_height])
+                
                 if nti == length(Noise_types)
                     c1 = colorbar ;
                     c1.Location = "southoutside" ;
                     c1.Label.Interpreter = 'latex' ;
-                    c1.Label.String = '\textbf{Convergence time (iterations)}' ;
-                    c1.Position = [rectangle_1_x, 0.75*y_margin, rectangle_width, 0.025] ;
+                    c1.Position = [rectangle_1_x, colorbar_y, rectangle_width, colorbar_height] ;
                 end
                 
+                %% Right-hand side: Residual error plot
                 s2 = subplot(length(Noise_types), 2, 2*nti) ;
                 hold on
                 contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'off')
@@ -211,28 +239,28 @@ function next_figure_number = plot_individual_results(Results, current_figure_nu
                 xlim([0, 1])
                 ylim([0, 2])
                 clim([0 residuals_sup_threshold])
+                xlabel(Variable_names{1}, 'Interpreter','latex', 'FontSize', 12)
+                ylabel(Variable_names{2}, 'Interpreter','latex', 'FontSize', 12, 'Rotation', 0)
+                grid on
+                box off
 
                 x_s2 = 0.5 + x_s1 ;
                 y_s2 = y_s1 ;
                 set(s2, 'PositionConstraint', 'innerposition',...
                     'InnerPosition', [x_s2, y_s2, graph_width, graph_height])
-                xlabel(Variable_names{1}, 'Interpreter','latex')
-                ylabel(Variable_names{2}, 'Interpreter','latex')
-                grid on
-                box off
+                
                 if nti == length(Noise_types)
                     c2 = colorbar ;
                     c2.Location = "southoutside" ;
-                    c2.Label.String = 'Residual error (RMSE)' ;
-                    c2.Position = [rectangle_2_x, 0.75*y_margin, rectangle_width, 0.025] ;
+                    c2.Position = [rectangle_2_x, colorbar_y, rectangle_width, colorbar_height] ;
                 end
 
                 % Formatting
-                scale_factor = 1.5 ;
+                scale_factor = 1.6 ;
                 set(gcf, 'PaperUnits', 'centimeters', ...
                     'PaperSize', scale_factor*[15, 17], ...
                     'Units', 'centimeters', ...
-                    'Position', [1, 1, scale_factor*15, scale_factor*17])
+                    'Position', [1, -5, scale_factor*15, scale_factor*17])
         
                 if save_figures
                     % Export and save figure as pdf file
