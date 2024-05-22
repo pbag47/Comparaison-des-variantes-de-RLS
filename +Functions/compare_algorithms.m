@@ -22,7 +22,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     x_gap_between_columns = 0 ;  % 0
     x_gap_between_column_and_fig_border = 0 ;  % 0
     y_gap_between_global_title_and_column = 0 ;  % 0
-    y_gap_between_column_and_colorbar = 0 ;  % 0
+    y_gap_between_column_and_colorbar = 0.0005 ;  % 0
     
     % Column titles
     x_gap_between_column_title_and_column_left_border = 0.1 ;  % 0.0075
@@ -36,6 +36,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     
     % Row titles
     x_gap_between_row_title_and_column_left_border = 0.025 ;  % 0.025
+    x_gap_between_row_title_and_column_right_border = 0.025 ;
     y_gap_between_row_title_and_row_top_border = 0 ;  % 0
     row_title_height = 0.03 ;  % 0.03
 
@@ -46,6 +47,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     y_gap_between_graph_and_row_bottom_border = 0.05 ;  % 0.05
     
     % Graph numbers
+    x_gap_between_graph_number_and_column_right_border = 0.025 ;
     graph_number_width = 0.025 ;
     graph_number_height = 0.025 ;
     
@@ -72,7 +74,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
         y_gap_between_row_title_and_row_top_border - (number_of_rows-1)*y_gap_between_rows ;
     % Row titles
     row_title_x = row_x + x_gap_between_row_title_and_column_left_border ;
-    row_title_width = 1 - 2*row_title_x ;
+    row_title_width = 1 - row_title_x - x_gap_between_row_title_and_column_right_border ;
     % Graphs
     graph_height = row_inner_height - y_gap_between_graph_and_row_bottom_border ;
     graph_width = column_inner_width - x_gap_between_graph_and_column_left_border - x_gap_between_graph_and_column_right_border ;
@@ -121,9 +123,10 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                     (number_of_rows-nti) * row_outer_height ;
                 graph_x = column_x + x_gap_between_graph_and_column_left_border + x_gap_between_columns/2 ;
                 graph_y = row_y + y_gap_between_graph_and_row_bottom_border ; 
-                graph_number_x = column_x + column_inner_width - graph_number_width ;
+                graph_number_x = column_x + column_inner_width - graph_number_width - x_gap_between_graph_number_and_column_right_border ;
                 graph_number_y = row_y ;
                 graph_number = (nti-1) * number_of_columns + ai ;
+                graph_number_text = char(graph_number + 'a' - 1) ;  % num2str(graph_number)
                 
                 %% Figure layout (Global title, borders between columns)
                 if nti == 1 && ai == 1
@@ -207,7 +210,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 grid on
                 box off
                 annotation('textbox', [graph_number_x, graph_number_y, graph_number_width, graph_number_height], ...
-                    'String', num2str(graph_number), ...
+                    'String', graph_number_text, ...
                     'Interpreter','latex', ...
                     'FontSize', 12, ...
                     'HorizontalAlignment','center', ...
@@ -242,7 +245,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 grid on
                 box off
                 annotation('textbox', [graph_number_x, graph_number_y, graph_number_width, graph_number_height], ...
-                    'String', num2str(graph_number), ...
+                    'String', graph_number_text, ...
                     'Interpreter','latex', ...
                     'FontSize', 12, ...
                     'HorizontalAlignment','center', ...
