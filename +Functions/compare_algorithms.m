@@ -44,7 +44,10 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     x_gap_between_graph_and_column_right_border = 0.025 ;  % 0.025
     y_gap_between_graph_and_row_title = 0.0112 ;  % 0.0112
     y_gap_between_graph_and_row_bottom_border = 0.05 ;  % 0.05
-
+    
+    % Graph numbers
+    graph_number_width = 0.025 ;
+    graph_number_height = 0.025 ;
     
     %% Layout processing
     % Global title
@@ -118,6 +121,9 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                     (number_of_rows-nti) * row_outer_height ;
                 graph_x = column_x + x_gap_between_graph_and_column_left_border + x_gap_between_columns/2 ;
                 graph_y = row_y + y_gap_between_graph_and_row_bottom_border ; 
+                graph_number_x = column_x + column_inner_width - graph_number_width ;
+                graph_number_y = row_y ;
+                graph_number = (nti-1) * number_of_columns + ai ;
                 
                 %% Figure layout (Global title, borders between columns)
                 if nti == 1 && ai == 1
@@ -190,7 +196,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 figure(current_figure_number + 1)
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
-                contourf(x_grid, y_grid, z_grid_conv, 'ShowText', 'off')
+                contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
@@ -200,6 +206,13 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 % clim([0 35250])
                 grid on
                 box off
+                annotation('textbox', [graph_number_x, graph_number_y, graph_number_width, graph_number_height], ...
+                    'String', num2str(graph_number), ...
+                    'Interpreter','latex', ...
+                    'FontSize', 12, ...
+                    'HorizontalAlignment','center', ...
+                    'VerticalAlignment','middle', ...
+                    'BackgroundColor','w')
                 if nti == length(Noise_types)
                     c1 = colorbar ;
                     c1.Location = "southoutside" ;
@@ -219,7 +232,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
                 hold on
-                contourf(x_grid, y_grid, z_grid_res, 'ShowText', 'off')
+                contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
@@ -228,6 +241,13 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 ylabel(Variable_names{2}, 'Interpreter','latex', 'FontSize', 14, 'Rotation', 0)
                 grid on
                 box off
+                annotation('textbox', [graph_number_x, graph_number_y, graph_number_width, graph_number_height], ...
+                    'String', num2str(graph_number), ...
+                    'Interpreter','latex', ...
+                    'FontSize', 12, ...
+                    'HorizontalAlignment','center', ...
+                    'VerticalAlignment','middle', ...
+                    'BackgroundColor','w')
                 if nti == length(Noise_types)
                     c2 = colorbar ;
                     c2.Location = "southoutside" ;

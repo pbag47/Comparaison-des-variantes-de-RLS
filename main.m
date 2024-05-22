@@ -11,7 +11,7 @@ Parameters = struct() ;
 filter_length = 32 ;  % Default: 32
 
 % .mat file in which the results are stored
-data_file = '+Results/all_results.mat' ;
+data_file = '+Results/all_results_v2.mat' ;
 
 % Save the figures of results as .fig and .pdf files
 save_figures = true ; % Boolean, default: true
@@ -30,27 +30,28 @@ plot_all_error_curves = false ; % Boolean, default: false
 noise_types = {'White_noise'} ; % Cell array of str elements
 
 %% Algorithm settings
-sweep_sim_number = 17 ;
+sweep_sim_beta = 33 ;
+sweep_sim_theta = 17 ;
 for i = 1:length(noise_types)
     % Parameters.(noise_types{i}).RLS.beta = linspace(0.5, 1, sweep_sim_number) ;
     % 
     % Parameters.(noise_types{i}).ARLS.beta = linspace(0, 1, sweep_sim_number) ;
     % Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2, sweep_sim_number) ;
     %
-    % Parameters.(noise_types{i}).OPTLMS.beta = linspace(0.9375, 1, 5) ;
-    % Parameters.(noise_types{i}).OPTLMS.theta = linspace(0, 2, sweep_sim_number) ;
-    % 
-    % Parameters.(noise_types{i}).DFTLMS.beta = linspace(0, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2, 17) ;
-    % 
-    % Parameters.(noise_types{i}).DCTLMS.beta = linspace(0, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2, sweep_sim_number) ;
-    % 
-    % Parameters.(noise_types{i}).HTLMS.beta = linspace(0, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2, 17) ;  
-    % 
-    % Parameters.(noise_types{i}).DWTLMS.beta = linspace(0, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).DWTLMS.theta = linspace(0, 2, 17) ;
+    % Parameters.(noise_types{i}).OPTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
+    % Parameters.(noise_types{i}).OPTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
+    % % 
+    % Parameters.(noise_types{i}).DFTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
+    % Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
+    % % 
+    % Parameters.(noise_types{i}).DCTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
+    % Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
+    % % 
+    % Parameters.(noise_types{i}).HTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
+    % Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2, sweep_sim_theta) ;  
+    % % 
+    % Parameters.(noise_types{i}).DWTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
+    % Parameters.(noise_types{i}).DWTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
 end
 
 %% Impulse response of the unknown system
