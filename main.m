@@ -4,6 +4,7 @@ clear global
 clc
 
 Parameters = struct() ;
+current_figure_number = 1 ;
 
 %% Simulation mode
 % Number of tap in the FIR filter
@@ -41,7 +42,7 @@ Noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str e
 Algorithms = {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'} ; % CEll array of str elements
 
 %% Algorithm settings
-sweep_sim_beta = 9 ;
+sweep_sim_beta = 5 ;
 sweep_sim_theta = 5 ;
 beta = linspace(0, 0.995, sweep_sim_beta) ;
 theta = linspace(0, 2, sweep_sim_theta) ;
@@ -64,20 +65,30 @@ Sh = Sh/(3*sum(Sh)) ;  % Arbitrary scaling
 % tests_added is true if some simulations remain after parsing the
 % existing results, false otherwise
 
-%% Algorithm testing procedure
+%% Parameters confirm dialog box
 if tests_added
-    Results = Functions.Algorithm_test(Sh, Parameters, plot_all_error_curves) ;
-    filtered_results = Functions.remove_NaN_results(Results) ;
-    Functions.Save_results(data_file, filtered_results)
+    answer = questdlg(['About to perform ', num2str(tests_added), ' consecutive simulations'], ...
+        'Confirm Parameters ?', 'Confirm', 'Discard simulations and continue', 'Cancel and Return', ...
+        'Confirm') ;
+    switch answer
+        case 'Confirm'
+            %% Algorithm testing procedure
+            [Results, current_figure_number] = Functions.Algorithm_test(Sh, ...
+                Parameters, plot_all_error_curves, current_figure_number) ;
+            % filtered_results = Functions.remove_NaN_results(Results) ;
+            Functions.Save_results(data_file, Results)
+        case 'Discard simulations and continue' 
+        case 'Cancel and Return'
+            return
+    end
 end
 
 %% Results display
 load(data_file, 'Results')
 path = "+Images" ;
-current_figure_number = 1 ;
 % current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
 % current_figure_number = Functions.plot_individual_results(Results, current_figure_number, save_figures, path) ;
-% current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
-%     current_figure_number, save_figures, path) ;
+current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
+    current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;

@@ -1,17 +1,16 @@
-function [Updated_parameters, tests_added] = Parse_existing_results(data_file_name, Parameters)
-    tests_added = false ;
+function [Updated_parameters, add_counter] = Parse_existing_results(data_file_name, Parameters)
+    add_counter = 0 ;
     Updated_parameters = struct() ;
-
-    Algorithms = fieldnames(Parameters) ;
-    disp(strcat('Parsing "', data_file_name, '"'))
     if isfile(data_file_name)
         empty_results_file = false ;
+        disp(strcat('Parsing "', data_file_name, '"'))
         load(data_file_name, 'Results')
     else
         empty_results_file = true ; 
-        disp(' ---- Warning ---- No data file found at provided path')
+        warning('No data file found at provided path')
     end
 
+    Algorithms = fieldnames(Parameters) ;
     for ai = 1:length(Algorithms)
         Algorithm = Algorithms{ai} ;
         header = strrep(Algorithm, '_', ' ') ;
@@ -19,6 +18,8 @@ function [Updated_parameters, tests_added] = Parse_existing_results(data_file_na
         Noise_types = fieldnames(Parameters.(Algorithm)) ;
         for nti = 1:length(Noise_types)
             Noise = Noise_types{nti} ;
+            header = strrep(Noise, '_', ' ') ;
+            disp(['  ', header, ':'])
             Variables = Parameters.(Algorithm).(Noise).Properties.VariableNames ;
 
             % Creates a cell array 'values', with 1 cell for each
@@ -46,10 +47,13 @@ function [Updated_parameters, tests_added] = Parse_existing_results(data_file_na
                 % If previous simulation results exist, then a comparison
                 % between 'table_of_combinations' and these results is
                 % performed to remove the duplicates.
-                index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)) ;
+                index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)(:, Variables)) ;
                 table_of_combinations(index_of_duplicates, :) = [] ;
-                disp(['      ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
+                disp(['    ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
             end
+            sz = size(table_of_combinations) ;
+            add_counter = add_counter + sz(1) ;
+            disp(['    ', num2str(sz(1)), ' simulations added'])
             Updated_parameters.(Algorithm).(Noise) = table_of_combinations ;
         end
     end
