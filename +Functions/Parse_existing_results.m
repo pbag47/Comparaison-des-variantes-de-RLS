@@ -1,94 +1,56 @@
 function [Updated_parameters, tests_added] = Parse_existing_results(data_file_name, Parameters)
     tests_added = false ;
     Updated_parameters = struct() ;
-    
-    % Parse previous simulations results and fill 'Updated_parameters' 
-    % struct only with parameter combinations that do not already exist
-    Noise_types = fieldnames(Parameters) ;
+
+    Algorithms = fieldnames(Parameters) ;
     disp(strcat('Parsing "', data_file_name, '"'))
     if isfile(data_file_name)
+        empty_results_file = false ;
         load(data_file_name, 'Results')
-        for nti = 1:length(Noise_types)
-            Noise_type = Noise_types{nti} ;
-            Updated_parameters.(Noise_type) = struct() ;
-            header = strrep(Noise_type, '_', ' ') ;
-            disp(['  ', header, ':'])
-            
-            Algorithms = fieldnames(Parameters.(Noise_type)) ;
-            for ai = 1:length(Algorithms)
-                Algorithm = Algorithms{ai} ;
-                Updated_parameters.(Noise_type).(Algorithm) = struct() ;
-                add_counter = 0 ;
-                Variables = fieldnames(Parameters.(Noise_type).(Algorithm)) ;
-                number_of_combinations_in_file = length(Results.(Noise_type).(Algorithm).(Variables{1})) ;
-                combinations_in_file = zeros(length(Variables), number_of_combinations_in_file) ;
-                checked_values = cell(1, length(Variables)) ;
-                header = strrep(Algorithm, '_', ' ') ;
-                header = [header, ', Variables:'] ;
-                for vi = 1:length(Variables)
-                    Variable = Variables{vi} ;
-                    Updated_parameters.(Noise_type).(Algorithm).(Variable) = [] ;
-                    header = [header, ' [', Variable, ']'] ;
-                    checked_values{vi} = Parameters.(Noise_type).(Algorithm).(Variable) ;
-                    combinations_in_file(vi, :) = Results.(Noise_type).(Algorithm).(Variable) ;
-                end
-                combinations_to_check = combvec(checked_values{:}) ;
-                disp(['    ', header])
-                
-                for ic = 1:length(combinations_to_check) % ivsv: Index of Combination to check
-                    try
-                        if ~any(ismember(combinations_to_check(:, ic)', combinations_in_file', 'rows'))
-                            add_counter = add_counter + 1 ;
-                            tests_added = true ;
-                            for vi = 1:length(Variables)
-                                Variable = Variables{vi} ;
-                                Updated_parameters.(Noise_type).(Algorithm).(Variable) = [Updated_parameters.(Noise_type).(Algorithm).(Variable),...
-                                    combinations_to_check(vi, ic)] ;
-                            end
-                        end
-                    catch Error
-                        if strcmp(Error.identifier, 'MATLAB:nonExistentField')
-                            disp(['  ', 'New algorithm description detected, adding ',...
-                                  Noise_type, ' -> ', Algorithm])
-                            tests_added = true ;
-                            for vi = 1:length(Variables)
-                                Variable = Variables{vi} ;
-                                Updated_parameters.(Noise_type).(Algorithm).(Variable) = combinations_to_check(vi, :) ;
-                            end
-                            break
-                        else
-                            throw(Error)
-                        end
-                    end
-                end
-                disp(['      ', num2str(length(combinations_to_check)-add_counter), ' simulations discarded (previous results found in ', data_file_name, ')'])
-                disp(['      ', num2str(add_counter), ' simulations remaining'])
-            end
-        end
     else
+        empty_results_file = true ; 
         disp(' ---- Warning ---- No data file found at provided path')
-        tests_added = true ;
+    end
+
+    for ai = 1:length(Algorithms)
+        Algorithm = Algorithms{ai} ;
+        header = strrep(Algorithm, '_', ' ') ;
+        disp([header, ':'])
+        Noise_types = fieldnames(Parameters.(Algorithm)) ;
         for nti = 1:length(Noise_types)
-            Noise_type = Noise_types{nti} ;
-            header = strrep(Noise_type, '_', ' ') ;
-            disp([header, ':'])
-            
-            Algorithms = fieldnames(Parameters.(Noise_type)) ;
-            for ai = 1:length(Algorithms)
-                Algorithm = Algorithms{ai} ;
-                Variables = fieldnames(Parameters.(Noise_type).(Algorithm)) ;
-                
-                values = cell(1, length(Variables)) ;
-                for vi = 1:length(Variables)
-                    Variable = Variables{vi} ;
-                    values{vi} = Parameters.(Noise_type).(Algorithm).(Variable) ;
-                end
-                combinations_to_add = combvec(values{:}) ;
-                for vi = 1:length(Variables)
-                    Variable = Variables{vi} ;
-                    Updated_parameters.(Noise_type).(Algorithm).(Variable) = combinations_to_add(vi, :) ;
-                end
+            Noise = Noise_types{nti} ;
+            Variables = Parameters.(Algorithm).(Noise).Properties.VariableNames ;
+
+            % Creates a cell array 'values', with 1 cell for each
+            % variable. In these cells, every value that the variable
+            % should take is listed.
+            values = cell(1, length(Variables)) ;
+            for vi = 1:length(Variables)
+                Variable = Variables{vi} ;
+                values{vi} = Parameters.(Algorithm).(Noise).(Variable) ;
             end
+
+            % From 'values', every possible combination of every
+            % variable value is listed as the rows of a matrix
+            % 'combinations_to_add'
+            combinations = combvec(values{:}) ;
+
+            % This matrix is then refactored as a table with the
+            % corresponding variable name
+            table_of_combinations = array2table(transpose(combinations), ...
+                'VariableNames', Variables) ;
+
+            % If no previous simulation results are found, the
+            % paramters are given by 'table_of_combinations'.
+            if ~empty_results_file
+                % If previous simulation results exist, then a comparison
+                % between 'table_of_combinations' and these results is
+                % performed to remove the duplicates.
+                index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)) ;
+                table_of_combinations(index_of_duplicates, :) = [] ;
+                disp(['      ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
+            end
+            Updated_parameters.(Algorithm).(Noise) = table_of_combinations ;
         end
     end
 end
