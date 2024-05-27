@@ -136,8 +136,13 @@ function [Results, next_figure_number] = Algorithm_test(Sh, Parameters, plot_all
                 if plot_all_error_curves
                     figure(current_figure_number + nti)
                     hold on
-                    plot(Error_RMS, 'DisplayName', strcat(Algorithm, ' | ',...
-                        Variables, ' = ', num2str(var_values)))
+                    curve_name = Algorithm ;
+                    for vi = 1:length(Variables)
+                        Variable = Variables{vi} ;
+                        Value = var_values(vi) ;
+                        curve_name = strcat(curve_name, ' | ', Variable, ' = ', num2str(Value)) ;
+                    end
+                    plot(Error_RMS, 'DisplayName', curve_name)
                 end
                 max_nti = max(max_nti, nti) ;
             end

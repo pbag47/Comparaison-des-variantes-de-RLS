@@ -1,3 +1,4 @@
+%% Initialization
 close all
 clear variables
 clear global
@@ -7,7 +8,7 @@ Parameters = struct() ;
 current_figure_number = 1 ;
 
 %% Simulation mode
-% Number of tap in the FIR filter
+% Number of taps in the FIR filter
 % Requirement for the DWTLMS: filter_length must be an integer power of 2
 filter_length = 32 ;  % Default: 32
 
@@ -39,13 +40,12 @@ Noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str e
 %   - 'DCTLMS'
 %   - 'HTLMS'
 %   - 'DWTLMS'
-Algorithms = {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'} ; % CEll array of str elements
+Algorithms = {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'} ; % Cell array of str elements
 
 %% Algorithm settings
-sweep_sim_beta = 5 ;
-sweep_sim_theta = 5 ;
-beta = linspace(0, 0.995, sweep_sim_beta) ;
-theta = linspace(0, 2, sweep_sim_theta) ;
+beta = linspace(0, 0.995, 9) ;
+theta = linspace(0, 2, 5) ;
+
 for ai = 1:length(Algorithms)
     Algorithm = Algorithms{ai} ;
     for nti = 1:length(Noise_types)
@@ -88,7 +88,7 @@ load(data_file, 'Results')
 path = "+Images" ;
 % current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
 % current_figure_number = Functions.plot_individual_results(Results, current_figure_number, save_figures, path) ;
-current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
-    current_figure_number, save_figures, path) ;
+% current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
+%     current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;
