@@ -286,7 +286,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
             try
                 savefig(gcf, file)
             catch
-                warning(['An error occurred while attempting to save Figure n°', num2str(current_figure_number + figure_index)])
+                warning(['An error occurred while attempting to save Figure n°', num2str(current_figure_number + fi)])
             end
         end
     end

@@ -75,7 +75,6 @@ if tests_added
             %% Algorithm testing procedure
             [Results, current_figure_number] = Functions.Algorithm_test(Sh, ...
                 Parameters, plot_all_error_curves, current_figure_number) ;
-            % filtered_results = Functions.remove_NaN_results(Results) ;
             Functions.Save_results(data_file, Results)
         case 'Discard simulations and continue' 
         case 'Cancel and Return'
@@ -86,9 +85,7 @@ end
 %% Results display
 load(data_file, 'Results')
 path = "+Images" ;
-% current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
-% current_figure_number = Functions.plot_individual_results(Results, current_figure_number, save_figures, path) ;
-% current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
-%     current_figure_number, save_figures, path) ;
+current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
+    current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;
