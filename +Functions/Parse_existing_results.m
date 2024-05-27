@@ -47,9 +47,18 @@ function [Updated_parameters, add_counter] = Parse_existing_results(data_file_na
                 % If previous simulation results exist, then a comparison
                 % between 'table_of_combinations' and these results is
                 % performed to remove the duplicates.
-                index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)(:, Variables)) ;
-                table_of_combinations(index_of_duplicates, :) = [] ;
-                disp(['    ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
+                try
+                    index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)(:, Variables)) ;
+                    table_of_combinations(index_of_duplicates, :) = [] ;
+                    disp(['    ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
+                catch Error
+                    switch Error.identifier
+                        case 'MATLAB:nonExistentField'
+                            disp('    Newly encountered configuration')
+                        otherwise
+                            rethrow(Error)
+                    end
+                end
             end
             sz = size(table_of_combinations) ;
             add_counter = add_counter + sz(1) ;

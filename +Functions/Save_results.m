@@ -1,4 +1,5 @@
 function Save_results(data_file_name, Results_to_save)
+    disp('Saving results')
     if isfile(data_file_name)
 
         % Merge new results struct with previous results
@@ -24,8 +25,8 @@ function Save_results(data_file_name, Results_to_save)
                 catch Error
                     switch Error.identifier
                         case 'MATLAB:nonExistentField'
-                            disp([' -- Warning -- No previous results found for ', Algorithm, ' -> ', Noise, ' in file ', data_file_name])
-                            disp('               Creating a new storage location')
+                            disp(['  No previous results found for ', Algorithm, ' -> ', Noise, ' in file ', data_file_name])
+                            disp('  Creating a new storage location')
                             Results.(Algorithm).(Noise) = Results_to_save.(Algorithm).(Noise) ;
                         otherwise 
                             rethrow(Error) ;
@@ -39,11 +40,11 @@ function Save_results(data_file_name, Results_to_save)
         
         % Save
         save(data_file_name, 'Results')
-        disp('Data saved')
+        disp('  Data saved')
     else
-        warning('No data file found at provided path, creating a new file to save data...')
+        warning('  No data file found at provided path, creating a new file to save data...')
         Results = Results_to_save ;
         save(data_file_name, 'Results')
-        disp('File created, data saved')
+        disp('  File created, data saved')
     end
 end

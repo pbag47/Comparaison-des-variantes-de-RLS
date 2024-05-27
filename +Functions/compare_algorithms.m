@@ -197,7 +197,17 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 figure(current_figure_number + 1)
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
-                contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
+                try
+                    contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
+                catch Error
+                    switch Error.identifier
+                        case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
+                            message = [Algorithm, ' | ', Noise, ': Unable to plot convergence graph, not enough data'] ;
+                            warning(message)
+                        otherwise 
+                            rethrow(Error)
+                    end
+                end
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
@@ -233,7 +243,17 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
                 hold on
-                contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
+                try
+                    contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
+                catch Error
+                    switch Error.identifier
+                        case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
+                            message = [Algorithm, ' | ', Noise, ': Unable to plot residuals graph, not enough data'] ;
+                            warning(message)
+                        otherwise 
+                            rethrow(Error)
+                    end
+                end
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
