@@ -1,66 +1,62 @@
-function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
+function [Results, next_figure_number] = Algorithm_test(Sh, Parameters, plot_all_error_curves, current_figure_number)
     Results = struct() ;
     filter_length = length(Sh) ;
     ANC_start_sample = length(Sh) ;
     Average_length = 10 ;
+    max_nti = 0 ;
     
     % Input signal file load
     load('Noise_samples.mat', 'Noise_samples')
     import Algorithms.*
-    
-    Noise_types = fieldnames(Parameters) ;
-    for nti = 1:length(Noise_types)
-        Noise = Noise_types{nti} ;
-        Noise_header = strrep(Noise, '_', ' ') ;
-        
-        Input = Noise_samples.(Noise) ;
-        Expected_output = Functions.get_expected_output(Input, Sh) ;
-        desired_signal_RMS = rms(Expected_output) ;
-        
-        if plot_all_error_curves
-            % Displaying the RMS value of the expected output
-            % (consistent base to detect algorithm divergence) 
-            figure(2000+nti)
-            hold on
-            plot([1, length(Expected_output)], [desired_signal_RMS, desired_signal_RMS],...
-                'LineStyle', '--', 'Color', 'black',...
-                'DisplayName', 'RMS of the desired signal')
-            hold on
-            % Displaying the starting sample
-            plot([ANC_start_sample, ANC_start_sample], [0, desired_signal_RMS],...
-                'LineStyle', ':', 'Color', 'black',...
-                'DisplayName', 'ANC algorithm start')
-            title(strcat(Noise_header, ' Error RMS curves'))
-        end
-        
-        Algorithms = fieldnames(Parameters.(Noise)) ;
-        curve_number = 0 ;
-        header = {} ;
-        for ai = 1:length(Algorithms)  % ai: Algorithm Index
-            Algorithm = Algorithms{ai} ;
-            Variables = fieldnames(Parameters.(Noise).(Algorithm)) ;
-            
-            % Initialization of the results storage variable
-            for vi= 1:length(Variables)  % vi: Variable Index
-                Results.(Noise).(Algorithm).(Variables{vi}) = zeros(1, length(Parameters.(Noise).(Algorithm).(Variables{vi}))) ;
+
+    Algorithms = fieldnames(Parameters) ;
+    for ai = 1:length(Algorithms)
+        Algorithm = Algorithms{ai} ;
+        Algorithm_header = strrep(Algorithm, '_', ' ') ;
+        Noise_types = fieldnames(Parameters.(Algorithm)) ;
+        for nti = 1:length(Noise_types)
+            Noise = Noise_types{nti} ;
+            Noise_header = strrep(Noise, '_', ' ') ;
+
+            Input = Noise_samples.(Noise) ;
+            Expected_output = Functions.get_expected_output(Input, Sh) ;
+            desired_signal_RMS = rms(Expected_output) ;
+
+            if plot_all_error_curves && ai == 1
+                % Displaying the RMS value of the expected output
+                % (consistent base to detect algorithm divergence)
+                figure(current_figure_number + nti)
+                hold on
+                plot([1, length(Expected_output)], [desired_signal_RMS, desired_signal_RMS],...
+                    'LineStyle', '--', 'Color', 'black',...
+                    'DisplayName', 'RMS of the desired signal')
+                hold on
+                % Displaying the starting sample
+                plot([ANC_start_sample, ANC_start_sample], [0, desired_signal_RMS],...
+                    'LineStyle', ':', 'Color', 'black',...
+                    'DisplayName', 'ANC algorithm start')
+                title(strcat(Noise_header, ' Error RMS curves'))
             end
             
-            number_of_simulations = length(Parameters.(Noise).(Algorithm).(Variables{1})) ;
-            Results.(Noise).(Algorithm).convergence = zeros(1, number_of_simulations) ;
-            Results.(Noise).(Algorithm).residuals = zeros(1, number_of_simulations) ;
-            Results.(Noise).(Algorithm).computing_time = zeros(1, number_of_simulations) ;
+            % Initialization of the results storage variable
+            sz = size(Parameters.(Algorithm).(Noise)) ;
+            number_of_simulations = sz(1) ;
+            Variables = Parameters.(Algorithm).(Noise).Properties.VariableNames ;
+            Results.(Algorithm).(Noise) = table('Size', [number_of_simulations, length(Variables)+3], ...
+                'VariableTypes', [repmat({'double'}, 1, length(Variables)), 'int16', 'double', 'double'], ...
+                'VariableNames', [Variables, 'convergence', 'residuals', 'computing_time']) ;
+            
             for si = 1:number_of_simulations  % si: Simulation Index
-                curve_number = curve_number + 1 ;
-                
                 % Console display
-                header{curve_number} = [Noise_header, ' | ', Algorithm] ;
+                header = [Algorithm_header, ' | ', Noise_header] ;
                 var_values = zeros(length(Variables), 1) ;
                 for vi = 1:length(Variables)  % vi: Variable Index
-                    var_values(vi) = Parameters.(Noise).(Algorithm).(Variables{vi})(si) ;
-                    header{curve_number} = [header{curve_number}, ' | [', Variables{vi}, '=', num2str(var_values(vi)), ']'] ;
+                    Variable = Variables{vi} ;
+                    var_values(vi) = Parameters.(Algorithm).(Noise).(Variable)(si) ;
+                    header = strcat(header, ' | [', Variable, '=', num2str(var_values(vi)), ']') ;
                 end
-                disp(header{curve_number})
-                
+                disp(header)
+
                 %% Algorithm
                 % Searching for the appropriate algorithm .m function in
                 % the current folder, based on the algorithm name
@@ -74,7 +70,7 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                 % ANC_start_sample iterations, then the error signal is 
                 % undefined in the algorithm function for this interval.
                 Error(1:ANC_start_sample-1) = desired_signal_RMS ;
-
+                
                 %% RMSE curve
                 % The RMSE is based on a sliding-average of the squared 
                 % error signal composed of Average_length samples.
@@ -94,7 +90,7 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                         Error_RMS(k) = 10e50 ;
                     end
                 end
-                
+
                 %% Convergence/Divergence detection
                 number_of_active_ANC_samples = length(Input) - ANC_start_sample ;
                 
@@ -121,15 +117,16 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                     residuals = NaN ;
                     computing_time = NaN ;
                 end
-                
+
                 %% Results processing
-                % Storage 
+                % Storage of current simulation results
                 for vi = 1:length(Variables)
-                    Results.(Noise).(Algorithm).(Variables{vi})(si) = Parameters.(Noise).(Algorithm).(Variables{vi})(si) ;
+                    Variable = Variables{vi} ;
+                    Results.(Algorithm).(Noise).(Variable)(si) = Parameters.(Algorithm).(Noise).(Variable)(si) ;
                 end
-                Results.(Noise).(Algorithm).convergence(si) = convergence ;
-                Results.(Noise).(Algorithm).residuals(si) = residuals ;
-                Results.(Noise).(Algorithm).computing_time(si) = computing_time ;
+                Results.(Algorithm).(Noise).convergence(si) = convergence ;
+                Results.(Algorithm).(Noise).residuals(si) = residuals ;
+                Results.(Algorithm).(Noise).computing_time(si) = computing_time ;
                 
                 % Console display
                 disp(['    Convergence: ', num2str(convergence), ' iterations'])
@@ -137,12 +134,19 @@ function Results = Algorithm_test(Sh, Parameters, plot_all_error_curves)
                 
                 % RMSE curve display
                 if plot_all_error_curves
-                    figure(2000+nti)
+                    figure(current_figure_number + nti)
                     hold on
-                    plot(Error_RMS, 'DisplayName', strcat(Algorithm, ' | ',...
-                        Variables, ' = ', num2str(var_values)))
+                    curve_name = Algorithm ;
+                    for vi = 1:length(Variables)
+                        Variable = Variables{vi} ;
+                        Value = var_values(vi) ;
+                        curve_name = strcat(curve_name, ' | ', Variable, ' = ', num2str(Value)) ;
+                    end
+                    plot(Error_RMS, 'DisplayName', curve_name)
                 end
+                max_nti = max(max_nti, nti) ;
             end
         end
     end
+    next_figure_number = current_figure_number + max_nti ;
 end

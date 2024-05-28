@@ -1,17 +1,19 @@
+%% Initialization
 close all
 clear variables
 clear global
 clc
 
 Parameters = struct() ;
+current_figure_number = 1 ;
 
 %% Simulation mode
-% Number of tap in the FIR filter
+% Number of taps in the FIR filter
 % Requirement for the DWTLMS: filter_length must be an integer power of 2
 filter_length = 32 ;  % Default: 32
 
 % .mat file in which the results are stored
-data_file = '+Results/all_results_v2.mat' ;
+data_file = '+Results/all_results.mat' ;
 
 % Save the figures of results as .fig and .pdf files
 save_figures = true ; % Boolean, default: true
@@ -27,34 +29,31 @@ plot_all_error_curves = false ; % Boolean, default: false
 %   - 'Brownian_noise'
 %   - 'Tonal_input'
 %   - 'UAV_noise'
-noise_types = {'White_noise'} ; % Cell array of str elements
+Noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str elements
+
+%% Algorithm selection
+% Available algorithms:
+%   - 'RLS'
+%   - 'ARLS'
+%   - 'OPTLMS'
+%   - 'DFTLMS'
+%   - 'DCTLMS'
+%   - 'HTLMS'
+%   - 'DWTLMS'
+Algorithms = {'HTLMS', 'DWTLMS'} ; % Cell array of str elements
 
 %% Algorithm settings
-sweep_sim_beta = 33 ;
-sweep_sim_theta = 17 ;
-for i = 1:length(noise_types)
-    % Parameters.(noise_types{i}).RLS.beta = linspace(0.5, 1, sweep_sim_number) ;
-    % 
-    % Parameters.(noise_types{i}).ARLS.beta = linspace(0, 1, sweep_sim_number) ;
-    % Parameters.(noise_types{i}).ARLS.theta = linspace(0, 2, sweep_sim_number) ;
-    %
-    % Parameters.(noise_types{i}).OPTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
-    % Parameters.(noise_types{i}).OPTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
-    % % 
-    % Parameters.(noise_types{i}).DFTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
-    % Parameters.(noise_types{i}).DFTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
-    % % 
-    % Parameters.(noise_types{i}).DCTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
-    % Parameters.(noise_types{i}).DCTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
-    % % 
-    % Parameters.(noise_types{i}).HTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
-    % Parameters.(noise_types{i}).HTLMS.theta = linspace(0, 2, sweep_sim_theta) ;  
-    % % 
-    % Parameters.(noise_types{i}).DWTLMS.beta = linspace(0, 0.995, sweep_sim_beta) ;
-    % Parameters.(noise_types{i}).DWTLMS.theta = linspace(0, 2, sweep_sim_theta) ;
+beta = linspace(0, 0.995, 33) ;
+theta = linspace(0, 2, 17) ;
+for ai = 1:length(Algorithms)
+    Algorithm = Algorithms{ai} ;
+    for nti = 1:length(Noise_types)
+        Noise = Noise_types{nti} ;
+        Parameters.(Algorithm).(Noise) = table(beta, theta, 'VariableNames', {'beta', 'theta'}) ;
+    end
 end
 
-%% Impulse response of the unknown system
+%% Impulse response of the 'unknown' system
 rng(1) ;
 Sh = randn(filter_length, 1) ;
 Sh = Sh/(3*sum(Sh)) ;  % Arbitrary scaling
@@ -65,20 +64,27 @@ Sh = Sh/(3*sum(Sh)) ;  % Arbitrary scaling
 % tests_added is true if some simulations remain after parsing the
 % existing results, false otherwise
 
-%% Algorithm testing procedure
+%% Parameters confirm dialog box
 if tests_added
-    Results = Functions.Algorithm_test(Sh, Parameters, plot_all_error_curves) ;
-    filtered_results = Functions.remove_NaN_results(Results) ;
-    Functions.Save_results(data_file, filtered_results)
+    answer = questdlg(['About to perform ', num2str(tests_added), ' consecutive simulations'], ...
+        'Confirm Parameters ?', 'Confirm', 'Discard simulations and continue', 'Cancel and Return', ...
+        'Confirm') ;
+    switch answer
+        case 'Confirm'
+            %% Algorithm testing procedure
+            [Results, current_figure_number] = Functions.Algorithm_test(Sh, ...
+                Parameters, plot_all_error_curves, current_figure_number) ;
+            Functions.Save_results(data_file, Results)
+        case 'Discard simulations and continue' 
+        case 'Cancel and Return'
+            return
+    end
 end
 
 %% Results display
 load(data_file, 'Results')
 path = "+Images" ;
-current_figure_number = 1 ;
-% current_figure_number = Functions.plot_performance_comparison(Results, current_figure_number, save_figures, path) ;
-% current_figure_number = Functions.plot_individual_results(Results, current_figure_number, save_figures, path) ;
-% current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
-%     current_figure_number, save_figures, path) ;
+current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'}, ...
+    current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;

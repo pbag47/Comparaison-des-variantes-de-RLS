@@ -1,8 +1,6 @@
 function next_figure_number = compare_algorithms(Results, algorithms_to_compare, current_figure_number, save_figures, path)
     next_figure_number = current_figure_number + 2 ;
-
-    Noise_types = fieldnames(Results) ;
-    number_of_rows = length(Noise_types) ;
+    Results = Functions.remove_NaN_results(Results) ;
     number_of_columns = length(algorithms_to_compare) ;
     
     %% Layout parameters
@@ -68,34 +66,85 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     column_title_width = column_inner_width - 2*x_gap_between_column_title_and_column_left_border ;
     % Rows
     row_x = x_gap_between_column_and_fig_border ;
-    row_outer_height = (column_inner_height - y_gap_between_row_top_border_and_column_top_border - ...
-        y_gap_between_row_bottum_border_and_column_bottum_border) / number_of_rows  ;
-    row_inner_height = row_outer_height - row_title_height - y_gap_between_graph_and_row_title - ...
-        y_gap_between_row_title_and_row_top_border - (number_of_rows-1)*y_gap_between_rows ;
     % Row titles
     row_title_x = row_x + x_gap_between_row_title_and_column_left_border ;
     row_title_width = 1 - row_title_x - x_gap_between_row_title_and_column_right_border ;
     % Graphs
-    graph_height = row_inner_height - y_gap_between_graph_and_row_bottom_border ;
     graph_width = column_inner_width - x_gap_between_graph_and_column_left_border - x_gap_between_graph_and_column_right_border ;
     
+    %% Figure layout (Global title, borders between columns)
+    figure(current_figure_number + 1)
+    annotation('textbox', [global_title_x, global_title_y, ...
+        global_title_width, global_title_height], ...
+        'String', '\textbf{Convergence time (iterations)}', ...
+        'Interpreter','latex', ...
+        'FontSize', 16,  ...
+        'HorizontalAlignment','center', ...
+        'VerticalAlignment','middle', ...
+        'BackgroundColor','w', ...
+        'LineStyle', 'none')
+    number_of_vertical_borders = number_of_columns - 1 ;
+    for li = 1:number_of_vertical_borders
+        x_border = li * 1/number_of_columns ;
+        y1_border = column_y ;
+        y2_border = column_y + column_inner_height ;
+        annotation('line', [x_border, x_border], [y1_border, y2_border])
+    end
+
+    figure(current_figure_number + 2)
+    annotation('textbox', [global_title_x, global_title_y, ...
+        global_title_width, global_title_height], ...
+        'String', '\textbf{Residual error (RMSE)}', ...
+        'Interpreter','latex', ...
+        'FontSize', 16,  ...
+        'HorizontalAlignment','center', ...
+        'VerticalAlignment','middle', ...
+        'BackgroundColor','w', ...
+        'LineStyle', 'none')
+    for li = 1:number_of_vertical_borders
+        x_border = li * 1/number_of_columns ;
+        y1_border = column_y ;
+        y2_border = column_y + column_inner_height ;
+        annotation('line', [x_border, x_border], [y1_border, y2_border])
+    end
+
+
     %%
-    for nti = 1:length(Noise_types)
-        Noise = Noise_types{nti} ;
-        Noise_name = Functions.render_name(Noise) ;
-        for ai = 1:length(algorithms_to_compare)
-            Algorithm = algorithms_to_compare{ai} ;
-            Algorithm_name = Functions.render_name(Algorithm) ;
-            Variables = Functions.find_variable_name(Results, Noise, Algorithm) ;
+    for ai = 1:number_of_columns
+        Algorithm = algorithms_to_compare{ai} ;
+        Algorithm_name = Functions.render_name(Algorithm) ;
+        
+        %% Columns layout (Algorithm name title)
+        column_x = x_gap_between_column_and_fig_border + ...
+            (ai-1) * column_outer_width ;
+        for fi = 1:2
+            figure(current_figure_number + fi)
+            column_title_x = column_x + x_gap_between_column_title_and_column_left_border + x_gap_between_columns/2 ;
+            annotation('textbox', [column_title_x, column_title_y, column_title_width, column_title_height], ...
+                'String', ['\textbf{', Algorithm_name, '}'], ...
+                'Interpreter','latex', ...
+                'FontSize', 14, ...
+                'HorizontalAlignment','center', ...
+                'VerticalAlignment','middle', ...
+                'BackgroundColor','w', ...
+                'LineStyle', 'none')
+        end
+        %%
+        Noise_types = fieldnames(Results.(Algorithm)) ;
+        number_of_rows = length(Noise_types) ;
+        for nti = 1:number_of_rows
+            Noise = Noise_types{nti} ;
+            Noise_name = Functions.render_name(Noise) ;
+            Variables = Functions.find_variable_name(Results, Algorithm, Noise) ;
             if length(Variables) == 2
                 Variable_names = {Functions.render_name(Variables{1}), ...
                     Functions.render_name(Variables{2})} ;
                 
                 % Convergence time series
-                x_data = Results.(Noise).(Algorithm).(Variables{1}) ;
-                y_data = Results.(Noise).(Algorithm).(Variables{2}) ;
-                z_data_conv = Results.(Noise).(Algorithm).convergence ;
-                z_data_res = Results.(Noise).(Algorithm).residuals ;
+                x_data = Results.(Algorithm).(Noise).(Variables{1}) ;
+                y_data = Results.(Algorithm).(Noise).(Variables{2}) ;
+                z_data_conv = Results.(Algorithm).(Noise).convergence ;
+                z_data_res = Results.(Algorithm).(Noise).residuals ;
                 
                 % Transform 1D-result vectors into 2D-grids
                 residuals_sup_threshold = 1.5e-15 ; % Inf ;
@@ -117,71 +166,20 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 end
                 
                 %% Layout processing
-                column_x = x_gap_between_column_and_fig_border + ...
-                    (ai-1) * column_outer_width ;
+                row_outer_height = (column_inner_height - y_gap_between_row_top_border_and_column_top_border - ...
+                    y_gap_between_row_bottum_border_and_column_bottum_border) / number_of_rows  ;
+                row_inner_height = row_outer_height - row_title_height - y_gap_between_graph_and_row_title - ...
+                    y_gap_between_row_title_and_row_top_border - (number_of_rows-1)*y_gap_between_rows ;
                 row_y = column_y + y_gap_between_row_bottum_border_and_column_bottum_border + ...
                     (number_of_rows-nti) * row_outer_height ;
                 graph_x = column_x + x_gap_between_graph_and_column_left_border + x_gap_between_columns/2 ;
                 graph_y = row_y + y_gap_between_graph_and_row_bottom_border ; 
+                graph_height = row_inner_height - y_gap_between_graph_and_row_bottom_border ;
                 graph_number_x = column_x + column_inner_width - graph_number_width - x_gap_between_graph_number_and_column_right_border ;
                 graph_number_y = row_y ;
                 graph_number = (nti-1) * number_of_columns + ai ;
                 graph_number_text = char(graph_number + 'a' - 1) ;  % num2str(graph_number)
                 
-                %% Figure layout (Global title, borders between columns)
-                if nti == 1 && ai == 1
-                    figure(current_figure_number + 1)
-                    annotation('textbox', [global_title_x, global_title_y, ...
-                                           global_title_width, global_title_height], ...
-                            'String', '\textbf{Convergence time (iterations)}', ...
-                            'Interpreter','latex', ...
-                            'FontSize', 16,  ...
-                            'HorizontalAlignment','center', ...
-                            'VerticalAlignment','middle', ...
-                            'BackgroundColor','w', ...
-                            'LineStyle', 'none')
-                    number_of_vertical_borders = number_of_columns - 1 ;
-                    for li = 1:number_of_vertical_borders
-                        x_border = li * 1/number_of_columns ;
-                        y1_border = column_y ;
-                        y2_border = column_y + column_inner_height ;
-                        annotation('line', [x_border, x_border], [y1_border, y2_border])
-                    end
-
-                    figure(current_figure_number + 2)
-                    annotation('textbox', [global_title_x, global_title_y, ...
-                                           global_title_width, global_title_height], ...
-                            'String', '\textbf{Residual error (RMSE)}', ...
-                            'Interpreter','latex', ...
-                            'FontSize', 16,  ...
-                            'HorizontalAlignment','center', ...
-                            'VerticalAlignment','middle', ...
-                            'BackgroundColor','w', ...
-                            'LineStyle', 'none')
-                    for li = 1:number_of_vertical_borders
-                        x_border = li * 1/number_of_columns ;
-                        y1_border = column_y ;
-                        y2_border = column_y + column_inner_height ;
-                        annotation('line', [x_border, x_border], [y1_border, y2_border])
-                    end
-                end
-
-                %% Column layout (Algorithm name title)
-                if nti == 1
-                    for fi = 1:2
-                        figure(current_figure_number + fi)
-                        column_title_x = column_x + x_gap_between_column_title_and_column_left_border + x_gap_between_columns/2 ;
-                        annotation('textbox', [column_title_x, column_title_y, column_title_width, column_title_height], ...
-                            'String', ['\textbf{', Algorithm_name, '}'], ...
-                            'Interpreter','latex', ...
-                            'FontSize', 14, ...
-                            'HorizontalAlignment','center', ...
-                            'VerticalAlignment','middle', ...
-                            'BackgroundColor','w', ...
-                            'LineStyle', 'none')
-                    end
-                end
-
                 %% Row layout (Noise type title)
                 for fi = 1:2
                     figure(current_figure_number + fi)
@@ -199,7 +197,17 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 figure(current_figure_number + 1)
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
-                contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
+                try
+                    contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
+                catch Error
+                    switch Error.identifier
+                        case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
+                            message = [Algorithm, ' | ', Noise, ': Unable to plot convergence graph, not enough data'] ;
+                            warning(message)
+                        otherwise 
+                            rethrow(Error)
+                    end
+                end
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
@@ -235,7 +243,17 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
                 hold on
-                contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
+                try
+                    contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
+                catch Error
+                    switch Error.identifier
+                        case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
+                            message = [Algorithm, ' | ', Noise, ': Unable to plot residuals graph, not enough data'] ;
+                            warning(message)
+                        otherwise 
+                            rethrow(Error)
+                    end
+                end
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
@@ -265,11 +283,9 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                     'Position', [1, -5, scale_factor*15, scale_factor*17])
 
             else
-                disp('Error: Invalid number of variables, cannot perform a visual rendering of the results for more than 2 variables')
-                exception = MException('ResultsDisplay:InvalidVariablesNumber', ...
+                error('DISPLAY:InvalidNumberOfVariables', ...
                     [Noise, ', ', Algorithm, ': ', num2str(length(Variables)),...
                     ' variables found. Number of variables must be 2']) ;
-                throw(exception)
             end
         end
     end
@@ -290,7 +306,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
             try
                 savefig(gcf, file)
             catch
-                disp(strcat('/!\ An error occurred while attempting to save Figure n°', num2str(current_figure_number + figure_index)))
+                warning(['An error occurred while attempting to save Figure n°', num2str(current_figure_number + fi)])
             end
         end
     end

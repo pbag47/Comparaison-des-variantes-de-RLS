@@ -1,23 +1,20 @@
 function Results = remove_NaN_results(Results)
-    Noise_types = fieldnames(Results) ;
-    for nti = 1:length(Noise_types)
-        Noise = Noise_types{nti} ;
-        Algorithms = fieldnames(Results.(Noise)) ;
-        for ai = 1:length(Algorithms)
-            Algorithm = Algorithms{ai} ;
-            nan_occurances = isnan(Results.(Noise).(Algorithm).convergence) ;
+    disp('Filtering results:')
+    Algorithms = fieldnames(Results) ;
+    for ai = 1:length(Algorithms)
+        Algorithm = Algorithms{ai} ;
+        Noise_types = fieldnames(Results.(Algorithm)) ;
+        for nti = 1:length(Noise_types)
+            Noise = Noise_types{nti} ;
+            nan_occurances = isnan(Results.(Algorithm).(Noise).computing_time) ;
             number_of_nan = sum(nan_occurances) ;
     
-            disp([Noise, ' | ', Algorithm, ' | ', num2str(number_of_nan), ' NaN results found. ', ...
-                ' Total : ', num2str(length(Results.(Noise).(Algorithm).convergence)), ' simulations'])
+            disp(['  ', Algorithm, ' | ', Noise, ' | ', num2str(number_of_nan), ' NaN results found. ', ...
+                ' Total: ', num2str(length(Results.(Algorithm).(Noise).convergence)), ' simulations'])
             
-            fields = fieldnames(Results.(Noise).(Algorithm)) ;
             for oi = length(nan_occurances):-1:1
                 if nan_occurances(oi)
-                    for fi = 1:length(fields)
-                        field = fields{fi} ;
-                        Results.(Noise).(Algorithm).(field)(oi) = [] ;
-                    end
+                    Results.(Algorithm).(Noise)(oi, :) = [] ;
                 end
             end
         end
