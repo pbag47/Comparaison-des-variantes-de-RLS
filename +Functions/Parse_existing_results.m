@@ -48,9 +48,9 @@ function [Updated_parameters, add_counter] = Parse_existing_results(data_file_na
                 % between 'table_of_combinations' and these results is
                 % performed to remove the duplicates.
                 try
-                    index_of_duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)(:, Variables)) ;
-                    table_of_combinations(index_of_duplicates, :) = [] ;
-                    disp(['    ', num2str(length(index_of_duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
+                    duplicates = ismember(table_of_combinations, Results.(Algorithm).(Noise)(:, Variables)) ;
+                    table_of_combinations(duplicates, :) = [] ;
+                    disp(['    ', num2str(sum(duplicates)), ' simulations discarded (previous results found in ', data_file_name, ')'])
                 catch Error
                     switch Error.identifier
                         case 'MATLAB:nonExistentField'

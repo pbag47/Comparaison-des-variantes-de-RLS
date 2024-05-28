@@ -13,7 +13,7 @@ current_figure_number = 1 ;
 filter_length = 32 ;  % Default: 32
 
 % .mat file in which the results are stored
-data_file = '+Results/OPTLMS_white_noise.mat' ;
+data_file = '+Results/all_results.mat' ;
 
 % Save the figures of results as .fig and .pdf files
 save_figures = true ; % Boolean, default: true
@@ -29,7 +29,7 @@ plot_all_error_curves = false ; % Boolean, default: false
 %   - 'Brownian_noise'
 %   - 'Tonal_input'
 %   - 'UAV_noise'
-Noise_types = {'White_noise'} ; % Cell array of str elements
+Noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str elements
 
 %% Algorithm selection
 % Available algorithms:
@@ -40,12 +40,11 @@ Noise_types = {'White_noise'} ; % Cell array of str elements
 %   - 'DCTLMS'
 %   - 'HTLMS'
 %   - 'DWTLMS'
-Algorithms = {'OPTLMS'} ; % Cell array of str elements
+Algorithms = {'HTLMS', 'DWTLMS'} ; % Cell array of str elements
 
 %% Algorithm settings
-beta = linspace(0, 0.995, 3) ;
-theta = linspace(0, 2, 3) ;
-
+beta = linspace(0, 0.995, 33) ;
+theta = linspace(0, 2, 17) ;
 for ai = 1:length(Algorithms)
     Algorithm = Algorithms{ai} ;
     for nti = 1:length(Noise_types)
@@ -85,7 +84,7 @@ end
 %% Results display
 load(data_file, 'Results')
 path = "+Images" ;
-current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS'}, ...
+current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'}, ...
     current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;
