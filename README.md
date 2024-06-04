@@ -54,29 +54,29 @@ In `main.m`, the variable that contains requested simulation settings is called 
 This variable is a structure organized as described by the following example picture:
 ![Structure of Parameters variable](https://github.com/pbag47/Comparaison-des-variantes-de-RLS/blob/Generalized_TDLMS/Parameters_structure_graph.png)
 
-For this example, the simulation environment is configured to run 9 different simulations, whose settings are summarized in the next table.
+For this example, the simulation environment is configured to run 6 different simulations, whose settings are summarized in the next table.
 
 | Algorithm | Noise type  | Name of variable 1 | Value of variable 1 | Name of variable 2 | Value of variable 2 |
 | --------- | ----------- | -----------------: | :------------------ | -----------------: | :------------------ |
 | RLS       | White_noise | lambda             | 0.9                 |        //          |         //          |
-| DWTLMS    | White_noise | beta               | 0                   | theta              | 0.4                 |
-| DWTLMS    | White_noise | beta               | 0.5                 | theta              | 0.4                 |
-| DWTLMS    | White_noise | beta               | 1                   | theta              | 0.4                 |
-| DWTLMS    | White_noise | beta               | 0                   | theta              | 0.6                 |
-| DWTLMS    | White_noise | beta               | 0.5                 | theta              | 0.6                 |
-| DWTLMS    | White_noise | beta               | 1                   | theta              | 0.6                 |
-| DCTLMS    | Pink_noise  | beta               | 0.1                 | theta              | 0.7                 |
-| DCTLMS    | Pink_noise  | beta               | 0.2                 | theta              | 0.7                 |
+| DWTLMS    | White_noise | beta               | 0.1                 | theta              | 0.7                 |
+| DWTLMS    | White_noise | beta               | 0.2                 | theta              | 0.7                 |
+| DWTLMS    | Pink_noise  | beta               | 0.4                 | theta              | 0.5                 |
+| DWTLMS    | Pink_noise  | beta               | 0.4                 | theta              | 0.8                 |
+| DCTLMS    | UAV_noise   | beta               | 0.6                 | theta              | 0.9                 |
 
 In terms of Matlab code, this simulation request is implemented in `main.m` as follows:
 ```matlab
 Parameters.RLS.White_noise.lambda = 0.9 ;
 
-Parameters.DWTLMS.White_noise.beta = [0, 0.5, 1] ;
-Parameters.DWTLMS.White_noise.theta = [0.4, 0.6] ;
+Parameters.DWTLMS.White_noise.beta = [0.1, 0.2] ;
+Parameters.DWTLMS.White_noise.theta = 0.7 ;
 
-Parameters.DCTLMS.Pink_noise.beta = [0.1, 0.2] ;
-Parameters.DCTLMS.Pink_noise.theta = 0.7 ;
+Parameters.DWTLMS.Pink_noise.beta = 0.4 ;
+Parameters.DWTLMS.Pink_noise.theta = [0.5, 0.8] ;
+
+Parameters.DCTLMS.UAV_noise.beta = 0.6 ;
+Parameters.DCTLMS.UAV_noise.theta = 0.9 ;
 ```
 
 If the results are stored in a file and gradually added, the noise types, algorithms and variable names have to remain consistent with the already existing results.
