@@ -36,7 +36,7 @@ ___
 | 'Pink_noise' | Pink random noise of mean $0$ and power $1$. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $17.92$ |
 | 'Brownian_noise' | Brownian random noise of mean $0$ and power $1$. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $31.75$ |
 | 'Tonal_input' | Sinusoïd of mean $0$, amplitude $\sqrt{2}$ and frequency $200Hz$ sampled at $22050Hz$ |
-| 'UAV_noise' | Audio from the Youtube video ![https://www.youtube.com/watch?v=1sCu03bnWJ0](https://www.youtube.com/watch?v=1sCu03bnWJ0) <br> from timestamps $3:44$ to $3:45$, downsampled via linear interpolation from $48000Hz$ to $22050Hz$, and normalized to a unitary power. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $7.540$ |
+| 'UAV_noise' | Audio from the Youtube video ![https://www.youtube.com/watch?v=lsCu03bnWJ0](https://www.youtube.com/watch?v=lsCu03bnWJ0) <br> from timestamps $3:44$ to $3:45$, downsampled via linear interpolation from $48000Hz$ to $22050Hz$, and normalized to a unitary power. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $7.540$ |
 
 ### Variables
 
