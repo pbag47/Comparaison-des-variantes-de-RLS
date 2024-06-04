@@ -28,6 +28,18 @@ This file contains the configurable settings and calls several functions by foll
 ___
 ## Settings
 
+### Default available input noises
+
+| Name | Description |
+| --- | --- |
+| 'White_noise' | White random Gaussian noise of mean $0$ and power $1$. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $0.1359$ |
+| 'Pink_noise' | Pink random noise of mean $0$ and power $1$. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $17.92$ |
+| 'Brownian_noise' | Brownian random noise of mean $0$ and power $1$. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $31.75$ |
+| 'Tonal_input' | Sinusoïd of mean $0$, amplitude $\sqrt{2}$ and frequency $200Hz$ sampled at $22050Hz$ |
+| 'UAV_noise' | Audio from the Youtube video ![https://www.youtube.com/watch?v=1sCu03bnWJ0](https://www.youtube.com/watch?v=1sCu03bnWJ0) <br> from timestamps $3:44$ to $3:45$, downsampled via linear interpolation from $48000Hz$ to $22050Hz$, and normalized to a unitary power. <br> Eigenvalue spread of the sample-estimate autocorrelation matrix: $7.540$ |
+
+### Variables
+
 | Variable | Type hint: Default value | Description | Additionnal information |
 | --- | --- | --- | --- |
 | `filter_length` | int: 32 | Number of taps that define the impulse response of the adaptive FIR filter | Must be an integer power of 2 |
@@ -44,27 +56,27 @@ This variable is a structure organized as described by the following example pic
 
 For this example, the simulation environment is configured to run 9 different simulations, whose settings are summarized in the next table.
 
-| Noise type | Algorithm | Name of variable 1 | Value of variable 1 | Name of variable 2 | Value of variable 2 |
-| ---------- | --------- | -----------------: | :------------------ | -----------------: | :------------------ |
-| White_noise | RLS      | lambda             | 0.9                 |        //          |         //          |
-| White_noise | DWTLMS   | beta               | 0                   | theta              | 0.4                 |
-| White_noise | DWTLMS   | beta               | 0.5                 | theta              | 0.4                 |
-| White_noise | DWTLMS   | beta               | 1                   | theta              | 0.4                 |
-| White_noise | DWTLMS   | beta               | 0                   | theta              | 0.6                 |
-| White_noise | DWTLMS   | beta               | 0.5                 | theta              | 0.6                 |
-| White_noise | DWTLMS   | beta               | 1                   | theta              | 0.6                 |
-| Pink_noise | DCTLMS    | beta               | 0.1                 | theta              | 0.7                 |
-| Pink_noise | DCTLMS    | beta               | 0.2                 | theta              | 0.7                 |
+| Algorithm | Noise type  | Name of variable 1 | Value of variable 1 | Name of variable 2 | Value of variable 2 |
+| --------- | ----------- | -----------------: | :------------------ | -----------------: | :------------------ |
+| RLS       | White_noise | lambda             | 0.9                 |        //          |         //          |
+| DWTLMS    | White_noise | beta               | 0                   | theta              | 0.4                 |
+| DWTLMS    | White_noise | beta               | 0.5                 | theta              | 0.4                 |
+| DWTLMS    | White_noise | beta               | 1                   | theta              | 0.4                 |
+| DWTLMS    | White_noise | beta               | 0                   | theta              | 0.6                 |
+| DWTLMS    | White_noise | beta               | 0.5                 | theta              | 0.6                 |
+| DWTLMS    | White_noise | beta               | 1                   | theta              | 0.6                 |
+| DCTLMS    | Pink_noise  | beta               | 0.1                 | theta              | 0.7                 |
+| DCTLMS    | Pink_noise  | beta               | 0.2                 | theta              | 0.7                 |
 
 In terms of Matlab code, this simulation request is implemented in `main.m` as follows:
 ```matlab
-Parameters.White_noise.RLS.lambda = 0.9 ;
+Parameters.RLS.White_noise.lambda = 0.9 ;
 
-Parameters.White_noise.DWTLMS.beta = [0, 0.5, 1] ;
-Parameters.White_noise.DWTLMS.theta = [0.4, 0.6] ;
+Parameters.DWTLMS.White_noise.beta = [0, 0.5, 1] ;
+Parameters.DWTLMS.White_noise.theta = [0.4, 0.6] ;
 
-Parameters.Pink_noise.DCTLMS.beta = [0.1, 0.2] ;
-Parameters.Pink_noise.DCTLMS.theta = 0.7 ;
+Parameters.DCTLMS.Pink_noise.beta = [0.1, 0.2] ;
+Parameters.DCTLMS.Pink_noise.theta = 0.7 ;
 ```
 
 If the results are stored in a file and gradually added, the noise types, algorithms and variable names have to remain consistent with the already existing results.
