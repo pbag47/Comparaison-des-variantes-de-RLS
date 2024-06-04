@@ -1,7 +1,7 @@
 
 close all
 
-% Prerequisite :
+% Prerequisites :
 %   Import https://www.youtube.com/watch?v=lsCu03bnWJ0 audio data via
 %   Matlab Import Data tool
 %   Audio data should be saved as "data" variable ((N x 2) array of
@@ -41,4 +41,4 @@ for i = 1:UAV_number
     title('Mono')
 end
 
-save audio_data UAV_noise fs
+save('audio_data.mat', 'UAV_noise', 'fs')

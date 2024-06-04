@@ -43,8 +43,8 @@ Noise_types = {'White_noise', 'Pink_noise', 'UAV_noise'} ; % Cell array of str e
 Algorithms = {'HTLMS', 'DWTLMS'} ; % Cell array of str elements
 
 %% Algorithm settings
-beta = linspace(0, 0.995, 33) ;
-theta = linspace(0, 2, 17) ;
+beta = linspace(0, 0.995, 65) ;
+theta = linspace(0, 2, 33) ;
 for ai = 1:length(Algorithms)
     Algorithm = Algorithms{ai} ;
     for nti = 1:length(Noise_types)
@@ -84,7 +84,7 @@ end
 %% Results display
 load(data_file, 'Results')
 path = "+Images" ;
-current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DCTLMS', 'HTLMS', 'DWTLMS'}, ...
+current_figure_number = Functions.compare_algorithms(Results, {'OPTLMS', 'DFTLMS', 'DWTLMS'}, ...
     current_figure_number, save_figures, path) ;
 current_figure_number = Functions.performance_overview(Results, ...
     current_figure_number, save_figures, path) ;

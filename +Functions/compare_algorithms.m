@@ -12,6 +12,10 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
     global_title_height = 0.05 ;  % 0.05
     
     % Colorbar
+    convergence_sup_threshold = 2e4 ;
+    residuals_sup_threshold = 1.5e-15 ; % Inf ;
+    convergence_levels = linspace(0, convergence_sup_threshold, 10) ;
+    residuals_levels = linspace(0, residuals_sup_threshold, 10) ;
     colorbar_x = 0.025 ;  % 0.05
     colorbar_y = 0.05 ;  % 0.05
     colorbar_height = 0.025 ;  % 0.025
@@ -147,20 +151,26 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 z_data_res = Results.(Algorithm).(Noise).residuals ;
                 
                 % Transform 1D-result vectors into 2D-grids
-                residuals_sup_threshold = 1.5e-15 ; % Inf ;
                 x_vector = unique(x_data) ;
                 y_vector = unique(y_data) ;
-                [x_grid, y_grid] = meshgrid(x_vector,...
-                    y_vector) ;
+                [x_grid, y_grid] = meshgrid(x_vector, y_vector) ;
                 z_grid_conv = NaN * ones(length(y_vector), length(x_vector)) ;
                 z_grid_res = NaN * ones(length(y_vector), length(x_vector)) ;
+                
+                % Due to large value gaps between the residuals results,
+                % the contourf display and its interpolations may lead to
+                % weird color patches that cover the whole graph and make
+                % it unreadable.
+                % To avoid this situation, the simulation results whose 
+                % residuals are greater than 'residuals_sup_results' are 
+                % not rendered in this function.
                 for i = 1:length(z_data_conv)
-                    if z_data_res(i) < residuals_sup_threshold || strcmp(Noise, 'Tonal_input')
-                        grid_row_indexes = find(x_grid == x_data(i)) ;
-                        grid_column_indexes = find(y_grid == y_data(i)) ;
-                        [~, x_index] = intersect(grid_row_indexes, grid_column_indexes) ;
-                        [~, y_index] = intersect(grid_column_indexes, grid_row_indexes) ;
-                        z_grid_conv(x_index, y_index) = z_data_conv(i) ;
+                    grid_row_indexes = find(x_grid == x_data(i)) ;
+                    grid_column_indexes = find(y_grid == y_data(i)) ;
+                    [~, x_index] = intersect(grid_row_indexes, grid_column_indexes) ;
+                    [~, y_index] = intersect(grid_column_indexes, grid_row_indexes) ;
+                    z_grid_conv(x_index, y_index) = z_data_conv(i) ;
+                    if z_data_res(i) < residuals_sup_threshold
                         z_grid_res(x_index, y_index) = z_data_res(i) ;
                     end
                 end
@@ -198,7 +208,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 axes('PositionConstraint','innerposition', ...
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
                 try
-                    contourf(x_grid, y_grid, z_grid_conv, 10, 'ShowText', 'off')
+                    contourf(x_grid, y_grid, z_grid_conv, convergence_levels, 'ShowText', 'off')
                 catch Error
                     switch Error.identifier
                         case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
@@ -211,7 +221,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                 colormap(jet)
                 xlim([0, 1])
                 ylim([0, 2])
-                clim([0, 20000])
+                clim([0, convergence_sup_threshold])
                 xlabel(Variable_names{1}, 'Interpreter','latex', 'FontSize', 14) ;
                 ylabel(Variable_names{2}, 'Interpreter','latex', 'FontSize', 14, 'Rotation', 0) ;
                 % clim([0 35250])
@@ -244,7 +254,7 @@ function next_figure_number = compare_algorithms(Results, algorithms_to_compare,
                      'InnerPosition', [graph_x, graph_y, graph_width, graph_height])
                 hold on
                 try
-                    contourf(x_grid, y_grid, z_grid_res, 10, 'ShowText', 'off')
+                    contourf(x_grid, y_grid, z_grid_res, residuals_levels, 'ShowText', 'off')
                 catch Error
                     switch Error.identifier
                         case 'MATLAB:contour:ZMustBeAtLeast2x2Matrix'
