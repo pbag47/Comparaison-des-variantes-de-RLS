@@ -16,14 +16,14 @@ ___
 The main executable file is `main.m`. 
 This file contains the configurable settings and calls several functions by following the procedure in the table below. 
 
-| File                                                                                   | Description |
-| -------------------------------------------------------------------------------------- | ----------- |
-| `main.m`                                                                               | First, the program makes a list of every simulation request (each noise type, each algorithm, each variable), according to the parameters set by the user. |
-| `+Functions\Parse_existing_results.m`                                                  | Then, the previous simulation results are inspected to make sure that the exact same simulation is not ran twice. If a requested simulation already exists in the previous results file, this simulation request is automatically discarded. |
-| `+Functions\Algorithm_test.m`                                                          | Then, a testing procedure starts: <br> For each requested noise type, the program counts the requested algorithms <br> <ul> For each algorithm, the program searches for all the possible combinations of requested values for its tuning parameters <br> <ul> For each combination of values, the selected algorithm is executed with an input signal that corresponds to the selected noise type, and a constant desired impulse response. </ul> </ul> |
-| `+Functions\detect_convergence.m`                                                      | <ul> <ul> Then, the convergence time and the residual error are deduced from the error RMS curve. </ul> </ul> |
-| `+Functions\remove_NaN_results.m` <br> `+Functions\save_results.m`                     | The results are finally filtered and saved as a _struct_ variable in a file set by the user. |
-| `+Functions\plot_performance_comparison.m` <br> `+Functions\plot_individual_results.m` | Once this testing procedure is finished, the results are displayed as graph figures. |
+| File                                                                        | Description |
+| --------------------------------------------------------------------------- | ----------- |
+| `main.m`                                                                    | First, the program makes a list of every simulation request (each noise type, each algorithm, each variable), according to the parameters set by the user. |
+| `+Functions\Parse_existing_results.m`                                       | Then, the previous simulation results are inspected to make sure that the exact same simulation is not ran twice. If a requested simulation already exists in the previous results file, this simulation request is automatically discarded. |
+| `+Functions\Algorithm_test.m`                                               | Then, a testing procedure starts: <br> For each requested noise type, the program counts the requested algorithms <br> <ul> For each algorithm, the program searches for all the possible combinations of requested values for its tuning parameters <br> <ul> For each combination of values, the selected algorithm is executed with an input signal that corresponds to the selected noise type, and a constant desired impulse response. </ul> </ul> |
+| `+Functions\detect_convergence.m`                                           | <ul> <ul> Then, the convergence time and the residual error are deduced from the error RMS curve. </ul> </ul> |
+| `+Functions\remove_NaN_results.m` <br> `+Functions\save_results.m`          | The results are finally filtered and saved as a _struct_ variable in a file set by the user. |
+| `+Functions\compare_algorithmsn.m` <br> `+Functions\performance_overview.m` | Once this testing procedure is finished, the results are displayed as graph figures and tables. |
 
 ___
 ## Settings
